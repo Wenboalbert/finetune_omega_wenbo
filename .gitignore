@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+# trained weights are large — keep them out of git
+*.pt
+*.ckpt
+# training outputs
+runs/

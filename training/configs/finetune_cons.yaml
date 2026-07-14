@@ -1,0 +1,67 @@
+# Omega-Forge (+ consistency): finetune.yaml with the point-cloud depth<->pose term switched ON.
+#
+# `w_cons` unprojects the predicted and the GT depth into the frame-0 camera and compares the two
+# clouds, which couples depth into the pose translation. It tends to help trajectory error (ATE) on
+# scenes with real parallax, and makes little difference on wide-baseline or low-parallax ones.
+#
+# It needs DENSE depth: it samples GT depth on a stride-32 grid, which on a sparse map is almost all
+# invalid. If your depth is sparse, stay on finetune.yaml with w_cons: 0.
+#
+# Start from finetune.yaml. Come here only if ATE is what you are optimizing.
+seed: 42                         # required; seeds torch, numpy, and the train/val scene split
+init: <VGGT_OMEGA_CKPT>          # the pretrained VGGT-Omega checkpoint, e.g. vggt_omega_1b_512.pt
+out: ./runs/finetune_cons        # best.pt (a bare VGGTOmega state_dict) + decision.json land here
+
+model:
+  freeze: lastN                  # heads | lastN | full
+  last_n: 8                      # lastN unfreezes the last 8 blocks of EACH aggregator stack, so 16
+                                 # blocks on the 1B model — read the `[wrap] trainable=` line it prints
+
+data:
+  manifest: <TRAIN_MANIFEST>     # JSONL, one scene per line. Schema + foot-guns: README.md
+  img_size: 512                  # match the resolution your pretrained checkpoint was trained at
+  patch: 16                      # backbone patch size; img_size is rounded DOWN to a multiple of it
+  aspect: square                 # square | pad | crop — how a non-square frame reaches the square
+                                 # canvas. `square` is what our own runs used. Read
+                                 # "Framing and intrinsics" in README.md before you change it, and
+                                 # run `python inspect_manifest.py <manifest>` to see what your data
+                                 # actually needs.
+  seq_len: 4                     # frames per clip. Must be >= 3; >= 4 for a meaningful ATE.
+  stride: 4                      # window step. = seq_len gives non-overlapping windows; lower it to
+                                 # overlap them and enlarge the epoch when you are short of data.
+  max_per_scene: 40              # cap on windows taken per scene. A 400-frame scene at seq_len 4
+                                 # yields 100 windows — this default would use only the first 40.
+  val_frac: 0.15                 # val is carved off as WHOLE scenes, so it stays scene-disjoint
+  workers: 2                     # dataloader workers; keep low to bound host RAM
+
+optim:
+  lr: 5.0e-6                     # head LR
+  backbone_lr_mult: 0.15         # every unfrozen backbone block shares lr * this (~7.5e-7). It is one
+                                 # flat group — there is no layer-wise decay.
+  weight_decay: 0.0
+  grad_clip: 1.0
+  batch_size: 3                  # clips per step (each clip is seq_len frames). ~25 GB VRAM here.
+  steps: 2000
+  warmup_frac: 0.05
+
+loss:
+  w_depth: 1.0
+  w_pose: 1.0
+  w_rot: 2.0                     # rotation emphasis — the geodesic angle is numerically small
+  w_trans: 1.0
+  w_grad: 0.5                    # multi-scale gradient matching. SET TO 0 FOR SPARSE DEPTH: it compares
+                                 # ADJACENT valid pixels, which a ~1%-coverage map almost never has.
+  w_conf: 0.05
+  w_cons: 1.0                    # point-cloud depth<->pose consistency: ON. Requires DENSE depth --
+                                 # it samples GT depth on a stride-32 grid. Set to 0 if yours is sparse.
+  metric: false                  # false = scale-invariant depth (median-aligned), which matches the
+                                 # up-to-scale released head. true supervises absolute scale, and the
+                                 # validation metrics then measure absolute scale too.
+
+val:
+  every: 150                     # steps between validations
+  max_clips: 40                  # clips scored per validation pass
+  ate_stat: mean                 # mean | median. Our own runs selected on the mean.
+                                 # Per-clip ATE is heavy-tailed when trajectories are near-collinear
+                                 # (a camera translating in a straight line), so prefer `median` there.
+  patience: 4                    # early-stop after this many validations with no improvement

@@ -1,0 +1,9 @@
+# training/  (on top of the official VGGT-Omega environment, which brings torch)
+pyyaml
+numpy
+pillow
+
+# visualization/  -- standalone: this is ALL it needs. No torch, no VGGT-Omega.
+# numpy
+# pillow
+# An MP4 backend is picked at runtime: ffmpeg on PATH (preferred), else opencv-python, else imageio.
