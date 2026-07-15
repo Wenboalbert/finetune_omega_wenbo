@@ -44,6 +44,31 @@ Outputs land in the config's `out:` directory (default `runs/finetune/`):
 Prefer trajectory error (ATE)? Use `configs/finetune_cons.yaml`, which turns on the reprojection
 depth↔pose consistency term (`w_cons`).
 
+## Dataset presets
+
+The supported benchmark manifests are prepared through one public entrypoint:
+
+```bash
+python training/prepare_dataset.py eth3d <eth3d_root> --out-dir <eth3d_prepared> --undistort
+python training/prepare_dataset.py 7scenes <7scenes_root> --out-dir <7scenes_prepared>
+python training/prepare_dataset.py nrgbd <nrgbd_root> --out-dir <nrgbd_prepared>
+python training/prepare_dataset.py tum-dynamic <tum_root> --out-dir <tum_dynamic_prepared>
+```
+
+The preparation code for four datasets lives in `prepare_dataset.py`.
+
+The trainer can consume either a regular YAML config path or one of these dataset preset names:
+
+```bash
+bash training/run_train.sh eth3d
+bash training/run_train.sh 7scenes
+bash training/run_train.sh nrgbd
+bash training/run_train.sh tum-dynamic
+```
+
+Edit common hyperparameters in `configs/base.yaml`. Edit dataset paths and the few dataset-specific
+knobs (`manifest`, `out`, `val_frac`, `max_per_scene`, `w_grad`) in `configs/datasets.yaml`.
+
 ## Data format: the only thing tying this to your dataset
 
 One **JSONL manifest**, one JSON object per line describing a *scene* (a temporally ordered clip):

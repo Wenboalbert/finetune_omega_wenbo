@@ -1,0 +1,41 @@
+seed: 42
+init: ./checkpoints/VGGT-Omega-1B-512/vggt_omega_1b_512.pt
+
+model:
+  freeze: lastN
+  last_n: 8
+
+data:
+  img_size: 512
+  patch: 16
+  aspect: pad
+  seq_len: 4
+  stride: 4
+  max_per_scene: 250
+  val_frac: 0.30
+  workers: 2
+
+optim:
+  lr: 5.0e-6
+  backbone_lr_mult: 0.15
+  weight_decay: 0.0
+  grad_clip: 1.0
+  batch_size: 3
+  steps: 2000
+  warmup_frac: 0.05
+
+loss:
+  w_depth: 1.0
+  w_pose: 1.0
+  w_rot: 2.0
+  w_trans: 1.0
+  w_grad: 0.5
+  w_conf: 0.05
+  w_cons: 0.0
+  metric: false
+
+val:
+  every: 150
+  max_clips: 80
+  ate_stat: median
+  patience: 4

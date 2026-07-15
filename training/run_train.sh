@@ -1,17 +1,18 @@
 #!/bin/bash
-# run_train.sh <config.yaml> -- launch a joint depth+pose finetune.
+# run_train.sh <config.yaml|dataset> -- launch a joint depth+pose finetune.
 #
 # Prereqs:
 #   * a Python env with torch (CUDA), pyyaml, numpy, pillow
 #   * the pretrained VGGT-Ω package importable: either on PYTHONPATH or via VGGT_OMEGA_PATH
-#   * edit the <VGGT_OMEGA_CKPT> / <TRAIN_MANIFEST> placeholders in the chosen config first
+#   * for local presets, edit configs/base.yaml and configs/datasets.yaml
 #
 # Example:
 #   export VGGT_OMEGA_PATH=<path/to/vggt-omega>
 #   bash run_train.sh configs/finetune.yaml
+#   bash run_train.sh nrgbd
 set -uo pipefail
 cd "$(dirname "$0")"                         # ftlib and the default out: dir are relative
-CFG="${1:?usage: run_train.sh <config.yaml>}"
+CFG="${1:?usage: run_train.sh <config.yaml|dataset>}"
 
 export PYTHONUNBUFFERED=1
 # keep host RAM/CPU bounded (raise if you have headroom)

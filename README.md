@@ -162,6 +162,34 @@ result is a property of the data, not of the model: a 4-frame Waymo clip spans a
 driving, so consecutive frames barely overlap and both pose heads sit in the same failure regime. Depth
 does not need that overlap, which is why depth still gains 60% on the very same clips.
 
+### Additional RGB-D benchmark runs
+
+We also ran the dataset presets in `training/configs/datasets.yaml`: ETH3D, 7Scenes, NRGBD and
+TUM-Dynamic. Each dataset was finetuned separately from the same VGGT-Omega checkpoint. Results are
+measured on held-out test splits that training never saw, using `img_size=512`, `seq_len=4`, and
+`aspect=pad`. The finetuned row uses the validation-gated `best.pt`. Bold marks the better value
+between frozen VGGT-Omega and the finetuned checkpoint for each metric and dataset.
+
+#### Depth
+
+| Metric | Model | ETH3D | 7Scenes | NRGBD | TUM-Dynamic |
+|---|---|---:|---:|---:|---:|
+| **AbsRel ↓** | VGGT-Omega | **0.00976** | 0.06978 | **0.01151** | 0.04293 |
+| | finetuned | 0.00986 | **0.06273** | 0.01198 | **0.03608** |
+| **δ<1.25 ↑** | VGGT-Omega | 0.99935 | 0.93771 | 0.99889 | 0.97329 |
+| | finetuned | **0.99942** | **0.94811** | **0.99891** | **0.97633** |
+
+#### Camera pose
+
+These are medians over clips.
+
+| Metric | Model | ETH3D | 7Scenes | NRGBD | TUM-Dynamic |
+|---|---|---:|---:|---:|---:|
+| **RPE-rot ↓** | VGGT-Omega | **11.5934** | 2.3422 | 0.8006 | **0.3166** |
+| | finetuned | 11.6963 | **2.3415** | **0.7798** | 0.3230 |
+| **ATE ↓** | VGGT-Omega | 0.010108 | 0.001253 | 0.000894 | 0.000891 |
+| | finetuned | **0.009749** | **0.001224** | **0.000849** | **0.000759** |
+
 
 
 ## Lessons

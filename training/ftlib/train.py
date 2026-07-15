@@ -3,8 +3,10 @@ control loop: best-by-combined-score + early-stop; decision gate PASSES only if 
 improve over the frozen baseline. Saves a bare VGGTOmega best.pt.
 
   python -m ftlib.train --config configs/finetune.yaml
+  python -m ftlib.train --config nrgbd
 """
-import argparse, os, json, math, random
+import argparse, copy, os, json, math, random
+from pathlib import Path
 import numpy as np
 import yaml, torch
 from torch.utils.data import DataLoader
@@ -16,11 +18,47 @@ from .val import evaluate
 from . import data as D
 
 
+def deep_merge(base, override):
+    merged = copy.deepcopy(base)
+    for key, value in (override or {}).items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = deep_merge(merged[key], value)
+        else:
+            merged[key] = copy.deepcopy(value)
+    return merged
+
+
+def load_config(config_ref):
+    config_path = Path(config_ref)
+    if config_path.is_file():
+        with open(config_path) as handle:
+            return yaml.safe_load(handle), config_path.name
+
+    config_dir = Path(__file__).resolve().parents[1] / "configs"
+    with open(config_dir / "base.yaml") as handle:
+        base = yaml.safe_load(handle)
+    with open(config_dir / "datasets.yaml") as handle:
+        datasets = yaml.safe_load(handle)["datasets"]
+
+    aliases = {}
+    for name, spec in datasets.items():
+        aliases[name] = name
+        for alias in spec.get("aliases", []) or []:
+            aliases[alias] = name
+
+    if config_ref not in aliases:
+        known = ", ".join(sorted(aliases))
+        raise FileNotFoundError(f"{config_ref!r} is neither a config file nor a dataset preset ({known})")
+
+    name = aliases[config_ref]
+    return deep_merge(base, datasets[name].get("config", {})), name
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", required=True)
+    ap.add_argument("--config", required=True, help="config YAML path or dataset preset from configs/datasets.yaml")
     a = ap.parse_args()
-    c = yaml.safe_load(open(a.config))
+    c, config_label = load_config(a.config)
     os.makedirs(c["out"], exist_ok=True)
     torch.manual_seed(c["seed"])
     torch.cuda.manual_seed_all(c["seed"])
@@ -117,7 +155,7 @@ def main():
                 print("[val] early stop", flush=True); break
         step += 1
 
-    dec = {"config": os.path.basename(a.config), "freeze": c["model"]["freeze"],
+    dec = {"config": config_label, "freeze": c["model"]["freeze"],
            "baseline": b, "best": best, "best_score": best_score if best else None,
            "depth_rel_drop": (b["absrel"] - best["absrel"]) / b["absrel"] if best else 0.0,
            "pose_ate_rel_drop": (b["ate"] - best["ate"]) / b["ate"] if best else 0.0,

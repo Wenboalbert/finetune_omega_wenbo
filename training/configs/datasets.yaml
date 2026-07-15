@@ -1,0 +1,43 @@
+datasets:
+  eth3d:
+    filename: eth3d.yaml
+    notes: Sparse ETH3D-style depth; keep gradient matching off.
+    config:
+      out: ./runs/eth3d_undistorted
+      data:
+        manifest: ./dataset/eth3d_prepared_undistorted/manifests/eth3d_train.jsonl
+        max_per_scene: 40
+        val_frac: 0.25
+      loss:
+        w_grad: 0.0
+      val:
+        max_clips: 40
+
+  7scenes:
+    filename: 7scenes.yaml
+    notes: Dense RGB-D; five train scenes, so use two validation scenes.
+    config:
+      out: ./runs/7scenes
+      data:
+        manifest: ./dataset/7scenes_prepared/manifests/7scenes_train.jsonl
+        val_frac: 0.40
+
+  nrgbd:
+    filename: nrgbd.yaml
+    notes: Dense RGB-D; six train scenes, so val_frac 0.34 gives two validation scenes.
+    config:
+      out: ./runs/nrgbd
+      data:
+        manifest: ./dataset/nrgbd_prepared/manifests/nrgbd_train.jsonl
+        val_frac: 0.34
+
+  tum_dynamic:
+    filename: tum_dynamic.yaml
+    aliases:
+      - tum-dynamic
+    notes: Dense RGB-D dynamic sequences; seven train sequences, so val_frac 0.30 gives two validation sequences.
+    config:
+      out: ./runs/tum_dynamic
+      data:
+        manifest: ./dataset/tum_dynamic_prepared/manifests/tum_dynamic_train.jsonl
+        val_frac: 0.30
