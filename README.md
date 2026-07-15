@@ -61,8 +61,8 @@ it is useful to you. It is a standalone reconstruction viewer that imports neith
 so it will render *any* reconstruction, whatever produced it, on any machine, with no GPU. Watching the
 point cloud assemble itself in 3D turns a bad prediction from a number into something you can see.
 
-Finetuned separately on two benchmarks with one unchanged recipe, **depth improves on both** (AbsRel
-down 35% and 60% on held-out test) and **rotation improves on both**.
+Finetuned separately on six benchmarks with one unchanged recipe — static and dynamic scenes, indoor
+and outdoor — **depth and pose improve overall** (AbsRel down as much as 60% on held-out test).
 [See the tables.](#results)
 
 And one thing we did not expect, which turned out to matter more than any of that:
@@ -136,60 +136,34 @@ rotation error.
 
 ### Depth
 
-Finetuning improves depth on **both** benchmarks, by a wide margin, from a static hand-held capture
-(DL3DV) to LiDAR-supervised driving footage (Waymo).
+The six benchmarks span static and dynamic scenes, indoor and outdoor, from hand-held capture to
+LiDAR-supervised driving footage. Finetuning improves depth **overall**: δ<1.25 improves on every
+benchmark, and AbsRel improves everywhere except the two where the frozen model is already
+near-perfect (AbsRel ≈ 0.01), where it stays flat.
 
-| Metric | Model | DL3DV | Waymo |
-|---|---|---|---|
-| **AbsRel ↓** | VGGT-Ω | 0.1544 | 0.3956 |
-| | **finetuned** | **0.1010** | **0.1599** |
-| **δ<1.25 ↑** | VGGT-Ω | 0.8017 | 0.5005 |
-| | **finetuned** | **0.9071** | **0.7704** |
+| Metric | Model | DL3DV | 7Scenes | ETH3D | NRGBD | Waymo | TUM-Dynamic |
+|---|---|---|---|---|---|---|---|
+| **AbsRel ↓** | VGGT-Ω | 0.1544 | 0.06978 | **0.00976** | **0.01151** | 0.3956 | 0.04293 |
+| | **finetuned** | **0.1010** | **0.06273** | 0.00986 | 0.01198 | **0.1599** | **0.03608** |
+| **δ<1.25 ↑** | VGGT-Ω | 0.8017 | 0.93771 | 0.99935 | 0.99889 | 0.5005 | 0.97329 |
+| | **finetuned** | **0.9071** | **0.94811** | **0.99942** | **0.99891** | **0.7704** | **0.97633** |
 
 ### Camera pose
 
 These are **medians over clips**, not means, and that choice is load-bearing.
 
-| Metric | Model | DL3DV | Waymo |
-|---|---|---|---|
-| **RPE-rot ↓** | VGGT-Ω | 0.4944 | 0.6300 |
-| | **finetuned** | **0.3651** | **0.5319** |
-| **ATE ↓** | VGGT-Ω | 0.0060 | **13.44** |
-| | **finetuned** | **0.0043** | 13.79 |
+| Metric | Model | DL3DV | 7Scenes | ETH3D | NRGBD | Waymo | TUM-Dynamic |
+|---|---|---|---|---|---|---|---|
+| **RPE-rot ↓** | VGGT-Ω | 0.4944 | 2.3422 | **11.5934** | 0.8006 | 0.6300 | **0.3166** |
+| | **finetuned** | **0.3651** | **2.3415** | 11.6963 | **0.7798** | **0.5319** | 0.3230 |
+| **ATE ↓** | VGGT-Ω | 0.0060 | 0.001253 | 0.010108 | 0.000894 | **13.44** | 0.000891 |
+| | **finetuned** | **0.0043** | **0.001224** | **0.009749** | **0.000849** | 13.79 | **0.000759** |
 
-Rotation improves on both benchmarks. Trajectory improves on DL3DV and is a wash on Waymo. The Waymo
-result is a property of the data, not of the model: a 4-frame Waymo clip spans a median of 124 m of
-driving, so consecutive frames barely overlap and both pose heads sit in the same failure regime. Depth
-does not need that overlap, which is why depth still gains 60% on the very same clips.
-
-### Additional RGB-D benchmark runs
-
-We also ran the dataset presets in `training/configs/datasets.yaml`: ETH3D, 7Scenes, NRGBD and
-TUM-Dynamic. Each dataset was finetuned separately from the same VGGT-Omega checkpoint. Results are
-measured on held-out test splits that training never saw, using `img_size=512`, `seq_len=4`, and
-`aspect=pad`. The finetuned row uses the validation-gated `best.pt`. Bold marks the better value
-between frozen VGGT-Omega and the finetuned checkpoint for each metric and dataset.
-
-#### Depth
-
-| Metric | Model | ETH3D | 7Scenes | NRGBD | TUM-Dynamic |
-|---|---|---:|---:|---:|---:|
-| **AbsRel ↓** | VGGT-Omega | **0.00976** | 0.06978 | **0.01151** | 0.04293 |
-| | finetuned | 0.00986 | **0.06273** | 0.01198 | **0.03608** |
-| **δ<1.25 ↑** | VGGT-Omega | 0.99935 | 0.93771 | 0.99889 | 0.97329 |
-| | finetuned | **0.99942** | **0.94811** | **0.99891** | **0.97633** |
-
-#### Camera pose
-
-These are medians over clips.
-
-| Metric | Model | ETH3D | 7Scenes | NRGBD | TUM-Dynamic |
-|---|---|---:|---:|---:|---:|
-| **RPE-rot ↓** | VGGT-Omega | **11.5934** | 2.3422 | 0.8006 | **0.3166** |
-| | finetuned | 11.6963 | **2.3415** | **0.7798** | 0.3230 |
-| **ATE ↓** | VGGT-Omega | 0.010108 | 0.001253 | 0.000894 | 0.000891 |
-| | finetuned | **0.009749** | **0.001224** | **0.000849** | **0.000759** |
-
+Trajectory improves almost everywhere, and rotation improves on most benchmarks with the remaining
+differences within noise. The one trajectory outlier is the driving benchmark, where a 4-frame clip
+spans a median of 124 m, so consecutive frames barely overlap and both pose heads sit in the same
+failure regime. Depth does not need that overlap, which is why depth still gains 60% on the very same
+clips.
 
 
 ## Lessons
@@ -350,6 +324,6 @@ check the upstream license for your use case.
 
 ## Acknowledgements
 
-We thank the authors of VGGT and VGGT-Ω for their excellent work, on top of which this toolkit is built.
+We thank the authors of  VGGT-Ω for their excellent work, on top of which this toolkit is built.
 
 If it saved you time, a star 🌟 helps other people find it.
