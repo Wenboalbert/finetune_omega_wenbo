@@ -48,8 +48,9 @@ loses.
 [VGGT](https://github.com/facebookresearch/vggt) reshaped feed-forward 3D reconstruction and
 [VGGT-Ω](https://github.com/facebookresearch/vggt-omega) pushed it further. Official training code has
 not been released yet, so if you want to adapt VGGT-Omega to your own data today, that part is
-something you have to write. We wrote it for ourselves, and this is it, in case it saves you the same
-work.
+something you have to write. We hope this gives the community a practical way to adapt VGGT-Ω to their own data today. 🙏
+
+Specifically, we provide:
 
 **`training/`** is an unofficial training implementation. Point it at a JSONL manifest of posed RGB-D
 frames and it adapts the depth and camera heads to your domain, with a held-out validation loop as the
