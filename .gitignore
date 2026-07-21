@@ -1,8 +1,13 @@
 __pycache__/
 *.py[cod]
+.DS_Store
 # trained weights are large — keep them out of git
 *.pt
 *.ckpt
 # training outputs
 runs/
 log_*.log
+logs/
+*.o[0-9]*
+*.e[0-9]*
+training/manifests/*.jsonl

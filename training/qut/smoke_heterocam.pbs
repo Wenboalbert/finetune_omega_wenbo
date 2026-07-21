@@ -1,0 +1,26 @@
+#!/bin/bash
+#PBS -N omega_heterocam_smoke
+#PBS -q saivt_igpu
+#PBS -l select=1:ncpus=4:ngpus=1:mem=64gb
+#PBS -l walltime=01:00:00
+#PBS -j oe
+
+set -euo pipefail
+PROJECT_ROOT=/home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune
+OMEGA_ROOT=/home/n12388815/phd/vggt_omega_project/vggt-omega-finetune
+CONDA_ENV=/home/n12388815/phd/vggt_omega_project/env_finetune
+CONDA_SH=/mnt/weka/pkg/rhel94/AuthenticAMD-25/software/Anaconda3/2024.02-1/etc/profile.d/conda.sh
+CONFIG="${CONFIG:-$PROJECT_ROOT/training/configs/heterocam_smoke.json}"
+MANIFEST="${MANIFEST:-$PROJECT_ROOT/training/manifests/smoke.jsonl}"
+mkdir -p "$PROJECT_ROOT/logs"
+STAMP=$(date +%Y%m%d_%H%M%S)
+exec >"$PROJECT_ROOT/logs/smoke_${STAMP}_${PBS_JOBID:-manual}.log" 2>&1
+module purge 2>/dev/null || true
+source "$CONDA_SH"
+conda activate "$CONDA_ENV"
+export VGGT_OMEGA_PATH="$OMEGA_ROOT"
+export PYTHONPATH="$OMEGA_ROOT:$PROJECT_ROOT/training:${PYTHONPATH:-}"
+cd "$PROJECT_ROOT"
+nvidia-smi
+python -c 'import vggt_omega; print("vggt_omega:", vggt_omega.__file__)'
+python training/smoke_heterocam.py --config "$CONFIG" --manifest "$MANIFEST"

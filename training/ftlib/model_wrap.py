@@ -14,6 +14,7 @@ VGGT_OMEGA_PATH environment variable at your local checkout, e.g.
   export VGGT_OMEGA_PATH=<path/to/vggt-omega>
 """
 import os, sys
+from pathlib import Path
 import torch
 
 _KEEP = ("aggregator", "camera_head", "dense_head", "point_head", "track_head", "text_alignment")
@@ -86,6 +87,106 @@ def build(init_ckpt, freeze="heads", last_n=2, base_lr=5e-6, backbone_lr_mult=0.
     return m.to(device), groups, train_bb, encoding_to_camera
 
 
+def _assert_omega_import(expected_root=None):
+    import vggt_omega
+
+    imported = Path(vggt_omega.__file__).resolve()
+    root = expected_root or os.environ.get("VGGT_OMEGA_PATH")
+    if root and Path(root).resolve() not in imported.parents:
+        raise RuntimeError(
+            "wrong vggt_omega checkout imported: "
+            f"{imported}; expected it below {Path(root).resolve()}"
+        )
+    print(f"[wrap] vggt_omega import={imported}", flush=True)
+    return str(imported)
+
+
+def build_camera_geometry(
+    init_ckpt,
+    train_mode="camera_only",
+    last_n=2,
+    head_lr=5e-6,
+    backbone_lr_mult=0.05,
+    device="cuda",
+    expected_omega_root=None,
+):
+    """Build the real VGGT-Omega model for low-risk camera geometry tuning.
+
+    camera_bias       only camera-head bias terms (safest diagnostic stage)
+    camera_only       complete camera head
+    camera_plus_lastN camera head plus the last N blocks of both aggregator stacks
+
+    The dense head stays frozen: the first stage must not silently alter depth.
+    """
+    _add_vggt_omega_to_path()
+    imported_path = _assert_omega_import(expected_omega_root)
+    from vggt_omega.models import VGGTOmega
+    from vggt_omega.utils.pose_enc import encoding_to_camera
+
+    model = VGGTOmega()
+    state = torch.load(init_ckpt, map_location="cpu", weights_only=True)
+    state = _clean_sd(state)
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    if len(missing) >= 50:
+        raise RuntimeError(
+            f"incompatible Omega checkpoint: {len(missing)} missing and "
+            f"{len(unexpected)} unexpected keys"
+        )
+    for parameter in model.parameters():
+        parameter.requires_grad_(False)
+
+    head_params = []
+    if train_mode == "camera_bias":
+        for name, parameter in model.camera_head.named_parameters():
+            if name.endswith("bias"):
+                parameter.requires_grad_(True)
+                head_params.append(parameter)
+    elif train_mode in ("camera_only", "camera_plus_lastN"):
+        for parameter in model.camera_head.parameters():
+            parameter.requires_grad_(True)
+            head_params.append(parameter)
+    else:
+        raise ValueError(
+            "train_mode must be camera_bias|camera_only|camera_plus_lastN, "
+            f"got {train_mode!r}"
+        )
+
+    backbone_params = []
+    if train_mode == "camera_plus_lastN":
+        if last_n <= 0:
+            raise ValueError("last_n must be positive for camera_plus_lastN")
+        for block in _last_blocks(model.aggregator, last_n):
+            for parameter in block.parameters():
+                parameter.requires_grad_(True)
+                backbone_params.append(parameter)
+
+    groups = [{"params": head_params, "lr": head_lr, "name": "camera_head"}]
+    if backbone_params:
+        groups.append(
+            {
+                "params": backbone_params,
+                "lr": head_lr * backbone_lr_mult,
+                "name": "aggregator_tail",
+            }
+        )
+    train_backbone = bool(backbone_params)
+    head_count = sum(parameter.numel() for parameter in head_params)
+    backbone_count = sum(parameter.numel() for parameter in backbone_params)
+    print(
+        f"[wrap] mode={train_mode} trainable={(head_count + backbone_count)/1e6:.2f}M "
+        f"camera_head={head_count/1e6:.2f}M aggregator_tail={backbone_count/1e6:.2f}M "
+        f"missing={len(missing)} unexpected={len(unexpected)}",
+        flush=True,
+    )
+    return {
+        "model": model.to(device),
+        "param_groups": groups,
+        "train_backbone": train_backbone,
+        "decode_camera": encoding_to_camera,
+        "import_path": imported_path,
+    }
+
+
 def forward_joint(m, images, train_backbone, amp=torch.bfloat16):
     # amp: bf16 needs Ampere or newer. Pass torch.float16 on older cards, or None to disable.
     """Returns depth (N,H,W), conf (N,H,W), pose_enc (B,S,9). Aggregator under no_grad when frozen."""
@@ -109,6 +210,39 @@ def forward_joint(m, images, train_backbone, amp=torch.bfloat16):
     return (d.reshape(B * S, *d.shape[-2:]).float(),
             cf.reshape(B * S, *cf.shape[-2:]).float(),
             pose_enc)
+
+
+def _autocast_context(images, amp):
+    enabled = images.is_cuda and amp is not None
+    return torch.autocast(device_type="cuda", dtype=amp, enabled=enabled)
+
+
+def forward_camera(model, images, train_backbone, decode_camera, amp=torch.bfloat16):
+    """Camera-only forward; returns pose encoding and camera-from-world E/K."""
+    if images.dim() == 4:
+        images = images.unsqueeze(0)
+    if images.dim() != 5:
+        raise ValueError(f"images must be [S,3,H,W] or [B,S,3,H,W], got {images.shape}")
+    with _autocast_context(images, amp):
+        if train_backbone:
+            tokens, patch_start = model.aggregator(images)
+        else:
+            with torch.no_grad():
+                tokens, patch_start = model.aggregator(images)
+            tokens = [token.detach() if torch.is_tensor(token) else token for token in tokens]
+    # The camera head and geometric decoder run in fp32 for stable quaternions/FOV.
+    with torch.autocast(device_type="cuda", enabled=False):
+        tokens = [token.float() if torch.is_tensor(token) else token for token in tokens]
+        pose_enc = model.camera_head(tokens, patch_token_start=patch_start)
+        if isinstance(pose_enc, (list, tuple)):
+            pose_enc = pose_enc[-1]
+        height_width = tuple(int(value) for value in images.shape[-2:])
+        extrinsics, intrinsics = decode_camera(pose_enc.float(), height_width)
+    return {
+        "pose_enc": pose_enc.float(),
+        "extrinsics": extrinsics.float(),
+        "intrinsics": intrinsics.float(),
+    }
 
 
 def save_bare(m, path):
