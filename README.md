@@ -20,23 +20,20 @@
 
 ## QUT integration and handoff (2026-09-09)
 
-This repository's `ue-heterocam-finetune` branch contains the training code. Its model
-source is provided separately by
-[Wenboalbert/vggt-omega_wenbo: offer_omega_original_model](https://github.com/Wenboalbert/vggt-omega_wenbo/tree/offer_omega_original_model).
+Current directory mapping and operation rules: [QUT_LAYOUT.md](QUT_LAYOUT.md),
+[AGENTS.md](AGENTS.md), and [experiment history](HETEROCAM_VERSION_zh.md).
 
-- QUT training checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo`.
-- QUT model worktree: `/home/n12388815/phd/vggt_omega_project/offer_omega_original_model`.
-- Model source commit for this integration: `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
-- Pretrained checkpoint (unchanged): `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/checkpoints/vggt_omega_1b_512.pt`.
+- Legacy CameraHead checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune` (this branch).
+- New per-scene workspace: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/scene-adaptation` (same-name branch).
+- Both use model source `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`,
+  pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014` in
+  [Wenboalbert/vggt-omega_wenbo](https://github.com/Wenboalbert/vggt-omega_wenbo/tree/offer_omega_original_model).
+- Original checkpoint: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/main/checkpoints/vggt_omega_1b_512.pt`.
 
-**Start here:** [agent working rules](AGENTS.md), [QUT/GitHub handoff and version history](HETEROCAM_VERSION_zh.md),
-and [QUT training instructions](training/README_HETEROCAM_ZH.md).
-
-Training code is maintained in the designated QUT checkout and committed to this branch;
-Mac training copies are retired, not another deployment source. Private recovery archives
-stay on QUT under ignored `local_archive/`, outside the runtime import path.
-This handoff update changes no model, training method, hyperparameters, or weights.
-The inherited general benchmark results below are not evidence from the QUT legacy CameraHead experiment.
+QUT is the implementation site; GitHub stores reviewed commits. Mac training copies are retired.
+The hierarchy migration changes no model algorithm, training hyperparameters, or weights.
+Legacy `camera_only` trains the full CameraHead, not LoRA. New focal-only Frame-FFN LoRA is not implemented yet.
+The inherited general benchmark text below is not evidence from either QUT experiment.
 
 ---
 

@@ -6,8 +6,8 @@
 #PBS -j oe
 
 set -euo pipefail
-PROJECT_ROOT=/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo
-OMEGA_ROOT=/home/n12388815/phd/vggt_omega_project/offer_omega_original_model
+PROJECT_ROOT=/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune
+OMEGA_ROOT=/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model
 CONDA_ENV=/home/n12388815/phd/vggt_omega_project/env_finetune
 CONDA_SH=/mnt/weka/pkg/rhel94/AuthenticAMD-25/software/Anaconda3/2024.02-1/etc/profile.d/conda.sh
 CONFIG="${CONFIG:-$PROJECT_ROOT/training/configs/heterocam_camera_only.json}"

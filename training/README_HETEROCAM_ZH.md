@@ -3,6 +3,11 @@
 这是独立于原有代码的保守训练入口。第一阶段只微调 camera head，不训练 depth head，目的不是
 立刻提高所有指标，而是验证“远距、大基线、高空/不利视角”的误差能否在独立场景上稳定降低。
 
+这是 `ue-heterocam-finetune` 分支的旧实验，不是 LoRA，也不是新的 focal-only 实验。
+当前目录关系见根目录 `QUT_LAYOUT.md`。默认 camera-only 配置中的 train/val manifest 仍是待配置入口；
+目录迁移没有替用户选择正式训练数据。仅检查既有 smoke 数据时可将下方预检配置改为 `heterocam_smoke.json`；
+不加 `--load-model`，不提交 GPU 作业。不要复用已有 run 的输出目录。
+
 ## 1. 为什么不用全局最小二乘 Sim(3) 当训练损失
 
 一个错误很大的目标相机会拉动最小二乘解，使本来较正确的 CCTV 也出现残差。本实现改用四种
@@ -32,7 +37,7 @@ CCTV_01 + CCTV_02 + CCTV_03 + CCTV_04 + 一个 Drone/Phone target
 例子（把实际独立 scene 路径替换进去）：
 
 ```bash
-cd /home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo
+cd /home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune
 export PYTHONPATH="$PWD/training"
 
 python training/build_ue_manifest.py \
@@ -56,8 +61,8 @@ UE CSV 的 `fov` 被明确当作水平 FOV；位置由厘米转为米；姿态�
 ```bash
 source /mnt/weka/pkg/rhel94/AuthenticAMD-25/software/Anaconda3/2024.02-1/etc/profile.d/conda.sh
 conda activate /home/n12388815/phd/vggt_omega_project/env_finetune
-export VGGT_OMEGA_PATH=/home/n12388815/phd/vggt_omega_project/offer_omega_original_model
-export PYTHONPATH="$VGGT_OMEGA_PATH:/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/training"
+export VGGT_OMEGA_PATH=/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model
+export PYTHONPATH="$VGGT_OMEGA_PATH:/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune/training"
 python training/preflight_heterocam.py --config training/configs/heterocam_camera_only.json
 ```
 

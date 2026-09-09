@@ -4,17 +4,18 @@ This is Wenbo's training/experiment repository, not the VGGT-Omega model reposit
 
 ## Read first
 
-- Read `HETEROCAM_VERSION_zh.md` for the authoritative repository mapping, experiment status, archive/recovery locations, and code provenance.
+- Read `QUT_LAYOUT.md` for current paths and branch roles; `HETEROCAM_VERSION_zh.md` preserves experiment history and recovery provenance.
+- This branch is the legacy CameraHead pipeline. New per-scene work belongs in the sibling `scene-adaptation` branch/worktree, not here.
 - Read `training/README_HETEROCAM_ZH.md` before operating the legacy JSON heterogeneous-camera pipeline. The YAML RGB-D pipeline has a separate `training/README.md`.
 - When operating through SSH from a local agent, explicitly read these remote files. Do not assume remote instructions were automatically discovered.
 
 ## Authoritative code and scope
 
-- Active QUT checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo`.
+- Active QUT checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune`.
 - GitHub repository: `Wenboalbert/finetune_omega_wenbo`; current QUT branch: `ue-heterocam-finetune`, not `main`.
 - Make training code changes in the designated QUT checkout. Before editing, verify branch, HEAD, remote, and both staged/unstaged/untracked changes; preserve unrelated work.
 - Mac training copies are retired. Do not recreate a long-lived Mac implementation or deploy an old local directory over QUT. If QUT is unavailable, stop remote implementation and report the blocker.
-- Model source provider: `/home/n12388815/phd/vggt_omega_project/offer_omega_original_model`, branch of the same name in `Wenboalbert/vggt-omega_wenbo`, pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
+- Model source provider: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`, branch of the same name in `Wenboalbert/vggt-omega_wenbo`, pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
 - Do not change the model source baseline, its branch/worktree, pretrained weights, or environment without explicit task scope. Set and verify the model import path as documented.
 
 ## Working and evidence rules
