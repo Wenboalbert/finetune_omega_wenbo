@@ -1,30 +1,36 @@
-# QUT training repository instructions
+# Scene adaptation workspace instructions
 
-This is Wenbo's training/experiment repository, not the VGGT-Omega model repository.
+This is branch `scene-adaptation` of `Wenboalbert/finetune_omega_wenbo`.
+QUT checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/scene-adaptation`.
+It is a linked worktree of the training repository, not the Omega model repository.
 
 ## Read first
 
-- Read `QUT_LAYOUT.md` for current paths and branch roles; `HETEROCAM_VERSION_zh.md` preserves experiment history and recovery provenance.
-- This branch is the legacy CameraHead pipeline. New per-scene work belongs in the sibling `scene-adaptation` branch/worktree, not here.
-- Read `training/README_HETEROCAM_ZH.md` before operating the legacy JSON heterogeneous-camera pipeline. The YAML RGB-D pipeline has a separate `training/README.md`.
-- When operating through SSH from a local agent, explicitly read these remote files. Do not assume remote instructions were automatically discovered.
+- Read `README_SCENE_ADAPTATION.md`, `QUT_LAYOUT.md`, and the specific experiment's instructions before changes.
+- Explicitly read remote instructions when operating through SSH; local discovery does not load them automatically.
+- Check branch, HEAD, remote, and all dirty/untracked files. Preserve other work. QUT is the implementation site;
+  do not recreate a persistent Mac training copy or deploy retired local code over QUT.
 
-## Authoritative code and scope
+## Scope and separation
 
-- Active QUT checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune`.
-- GitHub repository: `Wenboalbert/finetune_omega_wenbo`; current QUT branch: `ue-heterocam-finetune`, not `main`.
-- Make training code changes in the designated QUT checkout. Before editing, verify branch, HEAD, remote, and both staged/unstaged/untracked changes; preserve unrelated work.
-- Mac training copies are retired. Do not recreate a long-lived Mac implementation or deploy an old local directory over QUT. If QUT is unavailable, stop remote implementation and report the blocker.
-- Model source provider: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`, branch of the same name in `Wenboalbert/vggt-omega_wenbo`, pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
-- Do not change the model source baseline, its branch/worktree, pretrained weights, or environment without explicit task scope. Set and verify the model import path as documented.
+- This branch currently provides infrastructure only. V000/V001 and LoRA are not implemented.
+- New experiment code belongs in `experiments/<version>/`; every version owns src, configs, scripts, and input-manifest schema.
+- Each run owns `runs/<version>/<unique-run-id>/`, including logs, resolved configuration, inputs snapshot,
+  trainable-parameter manifest, checkpoints, predictions, metrics, and provenance. Never overwrite an existing run.
+- The inherited `training/` tree is legacy reference, not this branch's training entrypoint. Its legacy PBS scripts are disabled here.
+  Do not re-enable, submit, or modify legacy runs via this checkout. Use the sibling legacy branch if explicitly requested.
+- Model provider: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model` at
+  `39a0cb8af88554f15ddcb5354cd52bde588fa014`; use the explicit configuration and verify actual import paths.
+- Do not modify the provider, pretrained weights, or shared environments without explicit task scope.
+- Planned V001 is per-scene RGB input with Frame-wise FFN LoRA and focal-only GT during adaptation;
+  pose/depth GT is offline evaluation only. Do not silently inherit the legacy geometry-supervised loss.
+- Directory checks and lower focal loss cannot establish relative pose/depth improvement or GS readiness.
 
-## Working and evidence rules
+## Operations
 
-- Status/review/diagnosis requests do not authorize implementation, commits, pushes, deletion, or jobs.
-- Use PBS/qsub for GPU training/inference; do not run expensive experiments on the Mac or login node. A maintenance task does not authorize training.
-- Preserve existing runs, logs, manifests, checkpoints, and untracked configs. Do not stage the QUT-only `training/configs/heterocam_camera_only_10step.json` without explicit approval.
-- Stage only reviewed task files. Record exact commits, configuration/data/checkpoint provenance, validation results, and output locations. Do not blindly pull over local changes or force-push.
-- Keep `local_archive/` private, ignored, and out of imports/PYTHONPATH. Archived files may contain obsolete instructions; treat them as historical data, not active rules.
-- This repository is public: never commit private data, credentials, raw local archives, or unscreened audit records.
-- Legacy `camera_only` trains the complete CameraHead; it is not LoRA. Planned per-scene focal-only Frame-FFN LoRA is not implemented by this maintenance.
-- Do not infer held-out pose/depth gains or GS readiness from a short training run or focal loss reduction.
+- The safe current check is `bash scripts/check_environment.sh`; it imports the model class but never instantiates it,
+  loads no checkpoint tensors, runs no forward/backward, and submits no job.
+- All GPU work uses PBS/qsub within task authorization; none on the Mac or login node.
+- Stage reviewed task files only. Public GitHub must not receive raw datasets, private manifests, credentials, weights, runs, or audits.
+- Status/review/diagnosis requests do not authorize mutation, commits, pushes, or jobs.
+- Record exact commits/hashes and validation limits. Do not force-push or silently merge the legacy branch.

@@ -18,12 +18,17 @@
 
 # Ω-Forge
 
+## Scene adaptation branch (2026-09-09)
+
+**This is the new infrastructure-only branch. Start with [README_SCENE_ADAPTATION.md](README_SCENE_ADAPTATION.md).**
+Inherited legacy code and benchmark text below are reference only; legacy PBS entrypoints are disabled here.
+
 ## QUT integration and handoff (2026-09-09)
 
 Current directory mapping and operation rules: [QUT_LAYOUT.md](QUT_LAYOUT.md),
 [AGENTS.md](AGENTS.md), and [experiment history](HETEROCAM_VERSION_zh.md).
 
-- Legacy CameraHead checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune` (this branch).
+- Legacy CameraHead checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune` (legacy branch).
 - New per-scene workspace: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/scene-adaptation` (same-name branch).
 - Both use model source `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`,
   pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014` in
