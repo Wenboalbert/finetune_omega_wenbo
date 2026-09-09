@@ -18,7 +18,7 @@
 
 # Ω-Forge
 
-## QUT integration: model source provider (2026-09-09)
+## QUT integration and handoff (2026-09-09)
 
 This repository's `ue-heterocam-finetune` branch contains the training code. Its model
 source is provided separately by
@@ -29,9 +29,14 @@ source is provided separately by
 - Model source commit for this integration: `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
 - Pretrained checkpoint (unchanged): `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/checkpoints/vggt_omega_1b_512.pt`.
 
-This is a naming/path maintenance update, not a change to the model, training method,
-hyperparameters, or weights. See [QUT training instructions](training/README_HETEROCAM_ZH.md)
-and [directory/version history](HETEROCAM_VERSION_zh.md).
+**Start here:** [agent working rules](AGENTS.md), [QUT/GitHub handoff and version history](HETEROCAM_VERSION_zh.md),
+and [QUT training instructions](training/README_HETEROCAM_ZH.md).
+
+Training code is maintained in the designated QUT checkout and committed to this branch;
+Mac training copies are retired, not another deployment source. Private recovery archives
+stay on QUT under ignored `local_archive/`, outside the runtime import path.
+This handoff update changes no model, training method, hyperparameters, or weights.
+The inherited general benchmark results below are not evidence from the QUT legacy CameraHead experiment.
 
 ---
 

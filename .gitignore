@@ -11,3 +11,6 @@ logs/
 *.o[0-9]*
 *.e[0-9]*
 training/manifests/*.jsonl
+
+# Private historical Mac retirement archives; never import or publish
+/local_archive/
