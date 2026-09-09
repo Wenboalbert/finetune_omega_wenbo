@@ -2,10 +2,10 @@
   "seed": 42,
   "device": "cuda",
   "amp": "bfloat16",
-  "output_dir": "/home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune/runs/smoke_only",
+  "output_dir": "/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/runs/smoke_only",
   "log_every_steps": 1,
   "model": {
-    "vggt_omega_root": "/home/n12388815/phd/vggt_omega_project/vggt-omega-finetune",
+    "vggt_omega_root": "/home/n12388815/phd/vggt_omega_project/offer_omega_original_model",
     "init_checkpoint": "/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/checkpoints/vggt_omega_1b_512.pt",
     "train_mode": "camera_bias",
     "last_n": 1,
@@ -13,8 +13,8 @@
     "backbone_lr_mult": 0.05
   },
   "data": {
-    "train_manifest": "/home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune/training/manifests/smoke.jsonl",
-    "val_manifest": "/home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune/training/manifests/smoke_val.jsonl",
+    "train_manifest": "/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/training/manifests/smoke.jsonl",
+    "val_manifest": "/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/training/manifests/smoke_val.jsonl",
     "anchors": ["CCTV_01", "CCTV_02", "CCTV_03", "CCTV_04"],
     "targets_per_packet": 1,
     "packets_per_record": 1,

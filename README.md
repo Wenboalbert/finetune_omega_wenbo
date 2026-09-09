@@ -18,6 +18,23 @@
 
 # Ω-Forge
 
+## QUT integration: model source provider (2026-09-09)
+
+This repository's `ue-heterocam-finetune` branch contains the training code. Its model
+source is provided separately by
+[Wenboalbert/vggt-omega_wenbo: offer_omega_original_model](https://github.com/Wenboalbert/vggt-omega_wenbo/tree/offer_omega_original_model).
+
+- QUT training checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo`.
+- QUT model worktree: `/home/n12388815/phd/vggt_omega_project/offer_omega_original_model`.
+- Model source commit for this integration: `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
+- Pretrained checkpoint (unchanged): `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/checkpoints/vggt_omega_1b_512.pt`.
+
+This is a naming/path maintenance update, not a change to the model, training method,
+hyperparameters, or weights. See [QUT training instructions](training/README_HETEROCAM_ZH.md)
+and [directory/version history](HETEROCAM_VERSION_zh.md).
+
+---
+
 **Finetune [VGGT-Omega](https://github.com/facebookresearch/vggt-omega) (VGGT-Ω) on your own data, then see what it predicts.**
 
 An unofficial training implementation, written because official training code is not yet available. Additionally, and separately, a standalone 3D reconstruction visualizer that needs no GPU and no PyTorch.

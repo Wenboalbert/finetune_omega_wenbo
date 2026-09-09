@@ -32,7 +32,7 @@ CCTV_01 + CCTV_02 + CCTV_03 + CCTV_04 + 一个 Drone/Phone target
 例子（把实际独立 scene 路径替换进去）：
 
 ```bash
-cd /home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune
+cd /home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo
 export PYTHONPATH="$PWD/training"
 
 python training/build_ue_manifest.py \
@@ -56,8 +56,8 @@ UE CSV 的 `fov` 被明确当作水平 FOV；位置由厘米转为米；姿态�
 ```bash
 source /mnt/weka/pkg/rhel94/AuthenticAMD-25/software/Anaconda3/2024.02-1/etc/profile.d/conda.sh
 conda activate /home/n12388815/phd/vggt_omega_project/env_finetune
-export VGGT_OMEGA_PATH=/home/n12388815/phd/vggt_omega_project/vggt-omega-finetune
-export PYTHONPATH="$VGGT_OMEGA_PATH:/home/n12388815/phd/vggt_omega_project/vggt_omega_heterocam_finetune/training"
+export VGGT_OMEGA_PATH=/home/n12388815/phd/vggt_omega_project/offer_omega_original_model
+export PYTHONPATH="$VGGT_OMEGA_PATH:/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/training"
 python training/preflight_heterocam.py --config training/configs/heterocam_camera_only.json
 ```
 
@@ -78,7 +78,7 @@ qsub -v CHECKPOINT=/绝对路径/best_passed.pt training/qut/eval_heterocam.pbs
 qsub -v RESUME=/绝对路径/latest_training_state.pt training/qut/train_heterocam.pbs
 ```
 
-PBS 脚本使用 `env_finetune`，并把 `vggt-omega-finetune` 放到 `PYTHONPATH` 最前面。它不会修改
+PBS 脚本使用 `env_finetune`，并把 `offer_omega_original_model` 放到 `PYTHONPATH` 最前面。它不会修改
 环境，也不加载 CUDA module。smoke 只做一个 packet 的 forward/backward，不执行 optimizer step。
 
 ## 6. checkpoint 采用规则
