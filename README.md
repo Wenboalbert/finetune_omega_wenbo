@@ -18,21 +18,22 @@
 
 # Ω-Forge
 
-## QUT integration and handoff (2026-09-09)
+## QUT integration and handoff (2026-09-10)
 
 Current directory mapping and operation rules: [QUT_LAYOUT.md](QUT_LAYOUT.md),
 [AGENTS.md](AGENTS.md), and [experiment history](HETEROCAM_VERSION_zh.md).
 
 - Legacy CameraHead checkout: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune` (this branch).
-- New per-scene workspace: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/scene-adaptation` (same-name branch).
+- V001 register-token workspace: `/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/v001-focal-only-register-token` (same-name branch).
 - Both use model source `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`,
   pinned to `39a0cb8af88554f15ddcb5354cd52bde588fa014` in
   [Wenboalbert/vggt-omega_wenbo](https://github.com/Wenboalbert/vggt-omega_wenbo/tree/offer_omega_original_model).
 - Original checkpoint: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/main/checkpoints/vggt_omega_1b_512.pt`.
 
 QUT is the implementation site; GitHub stores reviewed commits. Mac training copies are retired.
-The hierarchy migration changes no model algorithm, training hyperparameters, or weights.
-Legacy `camera_only` trains the full CameraHead, not LoRA. New focal-only Frame-FFN LoRA is not implemented yet.
+This layout/branch maintenance changes no model algorithm, training hyperparameters, weights, or environment.
+Legacy `camera_only` trains the full CameraHead, not LoRA. V001 focal-only register-token adaptation is not implemented yet.
+Shared data entry: `/home/n12388815/phd/vggt_omega_project/datasets/` (private source registration, no data copy or frozen selection).
 The inherited general benchmark text below is not evidence from either QUT experiment.
 
 ---

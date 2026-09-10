@@ -1,5 +1,21 @@
 # 异构相机微调版本记录与交接
 
+## 当前状态：V001 register-token 独立版本 — 2026-09-10
+
+当前操作入口以 [QUT_LAYOUT.md](QUT_LAYOUT.md) 和本分支 AGENTS.md 为准。
+`scene-adaptation` 更名为 `v001-focal-only-register-token`，QUT worktree 与 GitHub 分支同名，
+保留原提交 `be46a9cb30b8925f279842430514fd268ee41c18` 的历史。
+每个方法是并列 worktree；V001 直接拥有 src/configs/scripts/inputs/runs。
+每次完整对照的 baseline/adapted/comparison 与日志聚合在同一个唯一 run 内。
+共享 datasets 只建立入口、登记现有外部源；没有复制数据、选定帧或冻结数据版本。
+
+本次仅维护目录、分支、说明与 CPU 预检：未实现 register 更新、损失、优化器或训练 PBS。
+首版已改为 focal-only register-token，不再是此前规划的 Frame-FFN LoRA。
+原始模型 39a0cb8、原始权重、环境和旧 CameraHead 训练/结果保持不变。
+旧分支仍为 `ue-heterocam-finetune`；下面记录保留历史语境，不是当前执行指令。
+
+## 历史记录：2026-09-09 及以前（原文保留）
+
 ## 当前状态：仓库 / 分支分层 — 2026-09-09
 
 当前路径、导入方式、分支角色、运行隔离与恢复入口以 [QUT_LAYOUT.md](QUT_LAYOUT.md) 为准。

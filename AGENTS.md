@@ -5,7 +5,7 @@ This is Wenbo's training/experiment repository, not the VGGT-Omega model reposit
 ## Read first
 
 - Read `QUT_LAYOUT.md` for current paths and branch roles; `HETEROCAM_VERSION_zh.md` preserves experiment history and recovery provenance.
-- This branch is the legacy CameraHead pipeline. New per-scene work belongs in the sibling `scene-adaptation` branch/worktree, not here.
+- This branch is the legacy CameraHead pipeline. New per-scene work belongs in the sibling `v001-focal-only-register-token` branch/worktree, not here.
 - Read `training/README_HETEROCAM_ZH.md` before operating the legacy JSON heterogeneous-camera pipeline. The YAML RGB-D pipeline has a separate `training/README.md`.
 - When operating through SSH from a local agent, explicitly read these remote files. Do not assume remote instructions were automatically discovered.
 
@@ -26,5 +26,5 @@ This is Wenbo's training/experiment repository, not the VGGT-Omega model reposit
 - Stage only reviewed task files. Record exact commits, configuration/data/checkpoint provenance, validation results, and output locations. Do not blindly pull over local changes or force-push.
 - Keep `local_archive/` private, ignored, and out of imports/PYTHONPATH. Archived files may contain obsolete instructions; treat them as historical data, not active rules.
 - This repository is public: never commit private data, credentials, raw local archives, or unscreened audit records.
-- Legacy `camera_only` trains the complete CameraHead; it is not LoRA. Planned per-scene focal-only Frame-FFN LoRA is not implemented by this maintenance.
+- Legacy `camera_only` trains the complete CameraHead; it is not LoRA. V001 per-scene focal-only register-token adaptation is not implemented by this maintenance.
 - Do not infer held-out pose/depth gains or GS readiness from a short training run or focal loss reduction.
