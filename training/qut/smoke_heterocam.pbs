@@ -6,9 +6,9 @@
 #PBS -j oe
 
 set -euo pipefail
-# This inherited script belongs to the sibling legacy checkout, not scene adaptation.
+# This inherited script belongs to the sibling legacy checkout, not V001.
 if :; then
-  echo 'STOP: legacy PBS is disabled on scene-adaptation. Read README_SCENE_ADAPTATION.md.' >&2
+  echo 'STOP: legacy PBS is disabled on v001-focal-only-register-token. Read README_V001.md.' >&2
   exit 2
 fi
 PROJECT_ROOT=/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune

@@ -1,11 +1,13 @@
 {
   "schema_version": 1,
-  "branch": "scene-adaptation",
+  "branch": "v001-focal-only-register-token",
   "model_branch": "offer_omega_original_model",
   "model_root": "/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model",
   "model_commit": "39a0cb8af88554f15ddcb5354cd52bde588fa014",
   "checkpoint": "/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/main/checkpoints/vggt_omega_1b_512.pt",
   "checkpoint_size_bytes": 4576706117,
   "checkpoint_expected_sha256": "c02da418b18bb01d0392598d3f6147366bcde1bb70fd08a5e3bf7925b0667934",
-  "environment": "/home/n12388815/phd/vggt_omega_project/env_finetune"
+  "environment": "/home/n12388815/phd/vggt_omega_project/env_finetune",
+  "datasets_root": "/home/n12388815/phd/vggt_omega_project/datasets",
+  "dataset_registry": "/home/n12388815/phd/vggt_omega_project/datasets/registry.yaml"
 }

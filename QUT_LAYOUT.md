@@ -1,100 +1,107 @@
 # QUT repository / branch layout
 
-Current handoff, 2026-09-09. Read this with the checkout's `AGENTS.md` before SSH operations.
-Remote instruction files must be read explicitly; they are not automatically loaded by a local agent.
+Current handoff: 2026-09-10. Read this with this checkout's `AGENTS.md` before SSH operations.
+Remote instructions must be read explicitly; local discovery does not load SSH-host files.
 
-## Directory mapping
+## Directory and GitHub mapping
 
 All paths below are under `/home/n12388815/phd/vggt_omega_project`.
-The repository-named directories are grouping folders, not Git checkouts; run Git in a branch folder.
+Repository-named parent folders are grouping directories, not Git checkouts. Run Git in a branch folder.
 
 | QUT path | GitHub repository | Branch / role |
 |---|---|---|
 | `vggt-omega_wenbo/main` | `Wenboalbert/vggt-omega_wenbo` | `main`: primary checkout, shared Git administration, original weights |
-| `vggt-omega_wenbo/offer_omega_original_model` | same model repository | same-name branch: original model provider, linked worktree |
-| `finetune_omega_wenbo/ue-heterocam-finetune` | `Wenboalbert/finetune_omega_wenbo` | same-name branch: legacy training primary checkout |
-| `finetune_omega_wenbo/scene-adaptation` | same training repository | same-name branch: independent per-scene experiment worktree |
+| `vggt-omega_wenbo/offer_omega_original_model` | same model repository | same-name branch: original-model provider worktree |
+| `finetune_omega_wenbo/ue-heterocam-finetune` | `Wenboalbert/finetune_omega_wenbo` | same-name branch: legacy CameraHead primary checkout |
+| `finetune_omega_wenbo/v001-focal-only-register-token` | same training repository | same-name branch: V001 per-scene register-token scaffold |
+| `datasets/` | outside Git checkouts | private shared data registry, manifests and prepared-data entry |
 
-The new scene branch starts from the migrated legacy branch, not training repository `main`.
-The two training worktrees share Git objects/history but have separate working files; editing one does not edit the other.
-They do not automatically share untracked manifests, runs, logs, or private archives.
-Existing branch names and GitHub default branches were not renamed. Model source remains
-`39a0cb8af88554f15ddcb5354cd52bde588fa014` in both model worktrees.
+V001 is the renamed `scene-adaptation` worktree/branch, preserving ancestry at
+`be46a9cb30b8925f279842430514fd268ee41c18`. It is not a fresh clone from repository `main`.
+Both training worktrees share Git objects/history but have independent working files.
+Untracked data, runs, logs and archives are NOT shared automatically.
+GitHub default branches, the legacy branch name, and both model branches are unchanged.
+Both model worktrees remain at `39a0cb8af88554f15ddcb5354cd52bde588fa014`.
 
-## Explicit model import contract
+## Original model and environment
 
-For either training branch, change into that branch folder, then:
+Provider: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model`.
+Checkpoint: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/main/checkpoints/vggt_omega_1b_512.pt`.
+Expected bytes: `4576706117`.
+Historical verified SHA256: `c02da418b18bb01d0392598d3f6147366bcde1bb70fd08a5e3bf7925b0667934`.
+The Sep-09 maintenance rehashed the full file; routine prechecks only verify file presence/size.
+A listed expected hash is not a new full verification.
 
+V001's safe entry is `bash scripts/check_environment.sh` from its worktree.
+It uses `configs/qut_environment.json` and the existing `env_finetune`, clears inherited import overrides,
+and verifies the actual package/class belongs to the pinned provider.
+No model instantiation, checkpoint tensor loading, forward/backward or job submission occurs.
+No register training implementation or GPU compatibility claim is implied by PASS.
+
+Legacy training retains its own `training/qut/` entrypoints and explicit provider import:
 ```bash
 export VGGT_OMEGA_PATH=/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/offer_omega_original_model
 export PYTHONPATH="$VGGT_OMEGA_PATH:$PWD/training"
-export PYTHONDONTWRITEBYTECODE=1
-/home/n12388815/phd/vggt_omega_project/env_finetune/bin/python -c 'import vggt_omega; print(vggt_omega.__file__)'
 ```
+Run that legacy setup only from its own checkout. V001 does not use `training/` as its implementation.
+Existing `env`, `env_finetune` and `env_gs_camera_refinement` are not recreated/upgraded by this rename.
+Their editable installation paths were repaired during the earlier Sep-09 hierarchy move.
+Environment activation alone may select model `main`; always verify the explicit provider import.
 
-The printed package path must resolve inside the provider worktree, not the model `main` checkout.
-Original checkpoint: `/home/n12388815/phd/vggt_omega_project/vggt-omega_wenbo/main/checkpoints/vggt_omega_1b_512.pt`.
-Historical verified SHA256: `c02da418b18bb01d0392598d3f6147366bcde1bb70fd08a5e3bf7925b0667934`.
-Current verification evidence is in the private migration audit; a listed expected hash is not by itself a new verification.
+## Methods, runs and data
 
-Existing `env`, `env_finetune`, and `env_gs_camera_refinement` were not recreated/upgraded.
-Their editable finder, direct URL, and RECORD metadata were repaired to the relocated model `main`.
-Explicit provider import is still required for training; activating an environment alone selects its default main checkout.
-Never change global package installation merely to select an experiment model.
+- Each method gets a parallel branch/worktree with an identical name, created when requested.
+  Current first method is `v001-focal-only-register-token`; no V000, FFN-LoRA or placeholder V002 directory is created.
+- V001 owns `src/`, `configs/`, `scripts/`, `inputs/` directly, not under `experiments/<version>/`.
+  Input folders hold schemas/docs, not private actual data. Cross-method implementation dependencies must be explicit and pinned.
+- Each complete comparison owns a unique `runs/<run-id>/` inside its method worktree.
+  Keep `baseline/`, `adapted/`, `comparison/` and all logs under that run, together with
+  immutable input/preprocessing/provenance/config/parameter manifests. Never overwrite prior runs.
+- The frozen baseline calls the same original provider/weights with no adaptation. No second source copy or V000 checkout is needed.
+- Shared `datasets/` has `README.md`, `registry.yaml`, `external/`, `manifests/` and `prepared/`.
+  Initial registration only: an existing external input collection is referenced, not copied, modified or selected.
+  A source path is not a frozen dataset revision. Freeze scene/frame selection, preprocessing and hashes before any run.
+- Private registry/data/manifests/prepared data remain on QUT; they are outside these code branches and are not GitHub-backed.
+  Public data protocol documentation lives in V001 `inputs/README.md`; actual runs snapshot their private manifests.
+- V001 plans RGB + known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
+  Native register updates vs residuals/deep prompts is not yet decided; no training, loss, optimizer or PBS is implemented.
+- Legacy `camera_only` trains the complete CameraHead, not LoRA, and its geometry/FOV supervision is not focal-only.
+  Its existing runs/logs/manifests/archive and QUT-only 10-step config are preserved.
+- In V001, inherited legacy PBS scripts remain disabled. Do not submit them or treat inherited training modules as V001.
 
-## Legacy and new experiment boundaries
+## Historical paths and recovery
 
-- Legacy entrypoints remain `training/qut/{smoke,train,eval}_heterocam.pbs`; these are only for the legacy checkout.
-- Legacy `camera_only` trains the whole CameraHead, not LoRA. Its geometry/FOV supervision is not focal-only.
-- Legacy `runs/`, `logs/`, `training/manifests/`, and `local_archive/` moved with their original checkout.
-  Original result/metadata bytes and historical paths were preserved. Never reuse an existing run directory for a new run.
-- Default legacy `heterocam_camera_only.json` train/val manifests remain placeholders if absent. This migration does not choose training data.
-- `scene-adaptation` has its own instructions and environment precheck. Inherited legacy training files are reference only;
-  do not launch their PBS scripts from the new checkout because they target the legacy checkout.
-- Planned new experiment structure: `experiments/<version>/{src,configs,scripts,inputs}/` for versioned code and
-  input-manifest schemas; `runs/<version>/<unique-run-id>/` for resolved config, input snapshot, parameter manifest,
-  checkpoints, predictions, metrics, and logs. Raw RGB/depth datasets and large weights remain external references.
-- V000 frozen baseline and V001 focal-only Frame-wise FFN LoRA are planned, not implemented or trained here.
-  Only focal GT is allowed in the planned V001 adaptation; pose/depth GT is offline evaluation only.
-- A later promising experiment can be promoted to a dedicated branch/worktree from an exact scene-adaptation commit.
-  Promotion is explicit, not an automatic merge or filesystem move.
-
-## Migration / historical-path lookup
-
-| Previous root | Current root |
+| Historical root | Current root |
 |---|---|
-| `finetune_omega_wenbo/` checkout | `finetune_omega_wenbo/ue-heterocam-finetune/` |
-| `offer_omega_original_model/` | `vggt-omega_wenbo/offer_omega_original_model/` |
-| `vggt-omega_wenbo/` checkout | `vggt-omega_wenbo/main/` |
+| old `finetune_omega_wenbo/` checkout | `finetune_omega_wenbo/ue-heterocam-finetune/` |
+| old `offer_omega_original_model/` | `vggt-omega_wenbo/offer_omega_original_model/` |
+| old `vggt-omega_wenbo/` checkout | `vggt-omega_wenbo/main/` |
+| `finetune_omega_wenbo/scene-adaptation/` | `finetune_omega_wenbo/v001-focal-only-register-token/` |
 
-These are directory moves, not additional training copies. No compatibility symlinks were created.
-Do not bulk-rewrite old logs or audit records using this table.
-Mac-retirement recovery archive is now
-`/home/n12388815/phd/vggt_omega_project/finetune_omega_wenbo/ue-heterocam-finetune/local_archive/mac_retirement_20260909T014805Z/`.
-Retain its hashes, recovery script, original audit, and permissions; never import or execute archived code as current defaults.
-Migration audit and pre-change file contents are private under legacy
-`local_archive/hierarchy_migration_20260909T025134Z/`; they are not published to this public repository.
+These are moves/renames, not duplicate active code copies. No compatibility symlinks are created.
+Do not rewrite old run logs/audits: use this table to interpret their historical paths.
+Prior private archives remain in the legacy checkout:
+`local_archive/mac_retirement_20260909T014805Z/` and
+`local_archive/hierarchy_migration_20260909T025134Z/`.
+This rename's before/validation records are private in V001 `local_archive/rename_20260910T002513Z/`.
+Keep archives out of imports, GitHub and active instructions. The previous layout index is retained in
+V001 `docs/LAYOUT_HISTORY.md`; old `README_SCENE_ADAPTATION.md` content is recoverable from Git history/private backup.
 
-## GS dependent maintenance
+Historical GS maintenance (Sep-09): its `qut/construction_cctv_inference.pbs` model path was updated
+in `Wenboalbert/vggt_omega_gs_camera_refinement:maintenance/qut-hierarchy-20260909`.
+GS remote `main` was not overwritten. This V001 rename changes no GS files/branches.
+Use the reviewed GS commit for its own future `EXPECTED_GS_COMMIT`; do not infer renderer compatibility from import checks.
 
-The GS repository is not moved. Only `qut/construction_cctv_inference.pbs` changes its model path to `vggt-omega_wenbo/main`.
-Its independent maintenance commit is published to
-`Wenboalbert/vggt_omega_gs_camera_refinement:maintenance/qut-hierarchy-20260909`.
-GS remote `main` is not overwritten; local historical divergence is preserved.
-When next submitting that GS job, set `EXPECTED_GS_COMMIT` to the reviewed new GS commit, not the pre-maintenance HEAD.
-Do not infer GPU/renderer compatibility from a path/import check.
+## Operations and future versions
 
-## GitHub and operational gates
-
-Check `git status --short`, branch, HEAD, remotes, and `git worktree list --porcelain` before editing.
-Preserve untracked QUT-only `training/configs/heterocam_camera_only_10step.json`; path maintenance did not publish it.
-Private data, runs, weights, credentials, and raw audits stay out of public GitHub.
-QUT SSH GitHub access is available. An HTTPS origin can be retained with a per-command SSH push override:
-
+Check status, HEAD, branch, remotes and `git worktree list --porcelain` before edits.
+Preserve untracked `training/configs/heterocam_camera_only_10step.json`; do not publish it implicitly.
+Commit and push reviewed code/docs from the designated QUT worktree within task authorization.
+QUT SSH GitHub access is available; HTTPS origin can remain with a per-command push override:
 ```bash
 git -c remote.origin.pushurl=git@github.com:Wenboalbert/finetune_omega_wenbo.git push origin <explicit-branch>
 ```
-
-Commit/push only within task authorization; no force pushes. Verify actual remote refs after pushing.
-Git identity was preserved, not globally reconfigured. All GPU work needs PBS/qsub and explicit task scope.
-Directory/import/preflight PASS is infrastructure evidence, not a successful forward/backward run or GS-ready geometry.
+No force pushes or global identity/auth changes. Verify remote refs after pushing.
+New methods must start from an explicitly recorded commit and declare inherited code; do not silently reuse a sibling's current files.
+Do not create speculative branches or merge method changes into legacy/default branches without a request.
+All GPU work requires PBS/qsub and task scope. Infrastructure PASS is not evidence of focal/pose/depth improvement or GS readiness.

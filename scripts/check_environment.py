@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check QUT scene-adaptation infrastructure without loading model tensors."""
+"""Check QUT V001 register-token infrastructure without loading model tensors."""
 import argparse
 import importlib
 import inspect
@@ -35,6 +35,12 @@ def main():
     checkpoint = Path(config["checkpoint"]).resolve(strict=True)
     require(checkpoint.is_file(), "checkpoint is not a file")
     require(checkpoint.stat().st_size == config["checkpoint_size_bytes"], "checkpoint size differs")
+    datasets = Path(config["datasets_root"]).resolve(strict=True)
+    registry = Path(config["dataset_registry"]).resolve(strict=True)
+    require(datasets.is_dir(), "shared datasets root is not a directory")
+    require(registry.is_file() and registry.parent == datasets, "wrong dataset registry entry")
+    require(all((datasets / name).is_dir() for name in ("external", "manifests", "prepared")),
+            "shared dataset skeleton is incomplete")
     os.environ["VGGT_OMEGA_PATH"] = str(model)
     sys.path.insert(0, str(model))
     package = importlib.import_module("vggt_omega")
@@ -56,6 +62,9 @@ def main():
         "checkpoint_sha256_checked_by_this_script": False,
         "checkpoint_loaded": False, "model_instantiated": False,
         "forward_backward_run": False, "job_submitted": False,
+        "datasets_root": str(datasets), "dataset_registry": str(registry),
+        "dataset_entry_checks": "presence_only", "dataset_readiness_checked": False,
+        "training_implemented": False,
     }
     print(json.dumps(report, indent=2))
 
