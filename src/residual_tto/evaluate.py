@@ -45,7 +45,7 @@ def sim3(src,dst,condition_min=.001):
         raise ValueError("invalid Sim3")
     return s,q,b
 
-def depth_gt(path, transform, unit_scale):
+def depth_gt(path, transform, unit_scale, invalid_source_values=()):
     os.environ.setdefault("OPENCV_IO_ENABLE_OPENEXR","1")
     import cv2
     raw=cv2.imread(str(path),cv2.IMREAD_UNCHANGED)
@@ -60,8 +60,10 @@ def depth_gt(path, transform, unit_scale):
             if len(active)!=1: raise ValueError("ambiguous EXR channels; explicit exporter metadata required")
             raw=rgb[...,active[0]];channel="only_nonzero_channel_"+str(active[0])
     if list(raw.shape)!=transform["raw_hw"]: raise ValueError("RGB/depth source size mismatch")
+    # Match user-confirmed source markers BEFORE converting cm to metres.
+    invalid=np.isin(raw.astype(np.float32),np.asarray(invalid_source_values,dtype=np.float32))
     raw=raw.astype(np.float32)*unit_scale
-    raw_valid=np.isfinite(raw)&(raw>0)
+    raw_valid=np.isfinite(raw)&(raw>0)&~invalid
     l,t,r,b=transform["crop_ltrb"];rh,rw=transform["resize_hw"]
     # Nearest resampling preserves depth values, using the same image-space crop and padding.
     resized=np.array(Image.fromarray(raw[t:b,l:r]).resize((rw,rh),Image.Resampling.NEAREST))
@@ -70,7 +72,9 @@ def depth_gt(path, transform, unit_scale):
     return np.pad(resized,((pt,pb),(pl,pr))),np.pad(valid,((pt,pb),(pl,pr))),channel
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument("--run",required=True);args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument("--run",required=True)
+    parser.add_argument("--invalid-source-depth",type=float,action="append",default=[])
+    args=parser.parse_args()
     run=Path(args.run).resolve()
     if (run/"study_manifest.json").exists():
         # This barrier runs BEFORE the first read of any geometry GT.
@@ -82,9 +86,20 @@ def main():
     optimization=read_json(run/"adapted/post14_D02_registers/optimization.json")
     residual_path=run/"adapted/post14_D02_registers/residual.pt"
     if sha256(residual_path)!=optimization["residual_sha256"]: raise ValueError("residual changed")
+    if (run/"study_manifest.json").exists():
+        study=read_json(run/"study_manifest.json")
+        if study.get("experiment_group")=="v001_group3_zero_target":
+            if args.invalid_source_depth!=study["evaluation_override"]["invalid_source_depth_values_cm"]:
+                raise ValueError("group-3 confirmed invalid-depth policy is required")
+            if not read_json(run/"logs/geometry_release.json").get("group2_prefix_regression_passed"):
+                raise RuntimeError("group-3 prefix regression not released")
     gt_manifest=read_json(run/"private_evaluation/manifest.json")
     focal=read_json(run/"inputs/focal_manifest.json")
-    protocol=gt_manifest["protocol"];names=focal["camera_order"]
+    protocol=dict(gt_manifest["protocol"]);names=focal["camera_order"]
+    if args.invalid_source_depth:
+        protocol.update(invalid_source_depth_values=args.invalid_source_depth,
+            invalid_source_depth_unit=protocol["depth_source_unit"],
+            depth_validity="finite_positive_GT; exclude exact confirmed source markers before cm-to-m; fixed source/padding mask; invalid predictions counted")
     if [v["camera"] for v in gt_manifest["views"]]!=names: raise ValueError("GT camera order mismatch")
     gt_e=np.stack([ue_extrinsic(v["ue_pose"],protocol["pose_position_to_m"]) for v in gt_manifest["views"]])
     gt_c=centers(gt_e)
@@ -95,7 +110,7 @@ def main():
     for item,view in zip(gt_manifest["views"],focal["views"]):
         if not item["depth_exists"] or sha256(item["depth_path"])!=item["depth_sha256"]:
             raise ValueError("depth source missing or changed")
-        gt_depths.append(depth_gt(item["depth_path"],view["transform"],protocol["depth_to_m"]))
+        gt_depths.append(depth_gt(item["depth_path"],view["transform"],protocol["depth_to_m"],args.invalid_source_depth))
     reports={}
     for arm,path in [("baseline",run/"baseline/predictions.npz"),
                      ("adapted",run/"adapted/post14_D02_registers/predictions.npz")]:

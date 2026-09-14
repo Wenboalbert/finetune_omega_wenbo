@@ -103,3 +103,10 @@ damping/budgets/acceptance, residual and paired predictions.
 Preflight and smoke completion are separate from optimization acceptance status.
 The PBS log records exceptions; no prior file or failed run is overwritten.
 Original data, provider, weights and environment remain unchanged.
+
+## Group 3: zero target threshold (2026-09-15)
+
+Authorized single-variable experiment: remove the 15% early-stop by setting
+its threshold to 0.0. Keep all other optimization settings and numerical core
+unchanged. See [frozen protocol](ZERO_TARGET_V001.md) and actual private run
+artifacts for execution status; source implementation is not a GPU result.

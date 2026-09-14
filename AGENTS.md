@@ -20,6 +20,12 @@ This is a training-repository linked worktree, not another Omega model source.
 - Read docs/BUDGET_LADDER_V001.md for frozen group-2 radius, acceptance and stop rules.
 - Group 2 uses scripts/v001_budget_ladder.pbs; preflight must PASS before optimization.
   All four endpoints must freeze before any group-2 geometry GT evaluation.
+- User approved group 3 on 2026-09-15: remove the 15% target early-stop ONLY.
+  Read docs/ZERO_TARGET_V001.md. Threshold is 0.0; all other numerical settings,
+  core modules, four budgets and independent zero starts are frozen.
+  All four endpoints and group-2 trajectory-prefix audits must pass before geometry.
+  Group-3 offline depth excludes user-confirmed source marker 65504 cm; compare
+  to corrected group-2 depth. This does not affect optimization.
 - V001 is per-scene RGB input with known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
 - Native camera/register parameters remain frozen; no LoRA, no new tokens, no layer scan.
 - See docs/IMPLEMENTATION_V001.md for current gates, numerical-policy limits and run entrypoints.

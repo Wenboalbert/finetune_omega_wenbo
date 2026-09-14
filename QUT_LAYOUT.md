@@ -107,3 +107,10 @@ No force pushes or global identity/auth changes. Verify remote refs after pushin
 New methods must start from an explicitly recorded commit and declare inherited code; do not silently reuse a sibling's current files.
 Do not create speculative branches or merge method changes into legacy/default branches without a request.
 All GPU work requires PBS/qsub and task scope. Infrastructure PASS is not evidence of focal/pose/depth improvement or GS readiness.
+
+## Group 3 addendum (2026-09-15)
+
+Same V001 branch/worktree and environment; no new model copy or method directory.
+Use the group3 variant in scripts/prepare_budget_ladder.py with private group-2
+reference linkage. Read docs/ZERO_TARGET_V001.md. Only target threshold changes;
+all new outputs use fresh runs, with prefix audits before geometry release.

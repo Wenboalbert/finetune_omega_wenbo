@@ -17,6 +17,10 @@ register-parameter tuning, CameraHead tuning, nor LoRA.
 - Group 2 is now user-authorized: independent 0.3/1/2/4 percent cumulative budgets,
   explicit two-constraint GN and a four-endpoint GT barrier. Read
   [frozen group-2 protocol](docs/BUDGET_LADDER_V001.md); implementation is not a GPU result.
+- Group 3: user-authorized removal of the 15% target early-stop only.
+  See [zero-target frozen protocol](docs/ZERO_TARGET_V001.md). It reuses the
+  numerical core and adds configuration/provenance/prefix regression checks;
+  zero target does not guarantee zero error. No result publication is authorized.
 - HFOV degrees and UE Z-depth cm are user-confirmed conventions, not exporter-source verification.
 
 Read [AGENTS.md](AGENTS.md), [QUT_LAYOUT.md](QUT_LAYOUT.md), and
