@@ -131,6 +131,55 @@ class GeometryTests(unittest.TestCase):
         znew=(e[:,:3]@q.T@(aligned-cnew))[2]
         self.assertAlmostEqual(znew,s*z)
 
+    def test_evaluator_cli_writes_report_and_summary(self):
+        import contextlib
+        import io
+        import json
+        import sys
+        from unittest.mock import patch
+        import residual_tto.evaluate as evaluation
+        from residual_tto.io import sha256, write_json
+        with tempfile.TemporaryDirectory() as tmp:
+            run=Path(tmp)
+            for name in ["logs","inputs","private_evaluation","baseline",
+                         "adapted/post14_D02_registers","comparison"]:
+                (run/name).mkdir(parents=True)
+            residual=run/"adapted/post14_D02_registers/residual.pt"
+            residual.write_bytes(b"synthetic frozen residual")
+            depth_file=run/"synthetic_depth.bin";depth_file.write_bytes(b"synthetic depth")
+            write_json(run/"logs/smoke_completion.json",{"status":"PASS"})
+            write_json(run/"adapted/post14_D02_registers/optimization.json",
+                {"status":"ACCEPTED","residual_sha256":sha256(residual)})
+            names=["c0","c1","c2","c3","c4"]
+            points=np.array([[0.,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,1]])
+            extrinsics=np.stack([np.column_stack((np.eye(3),-p)) for p in points])
+            protocol=dict(pose_position_to_m=.01,depth_to_m=.01,
+                support_views=names[:4],heldout_view=names[4],support_sigma2_over_sigma1_min=.001)
+            gt_views=[]
+            for name,p in zip(names,points):
+                gt_views.append(dict(camera=name,depth_exists=True,depth_path=str(depth_file),
+                    depth_sha256=sha256(depth_file),ue_pose=dict(
+                        pos_x=100*p[2],pos_y=100*p[0],pos_z=-100*p[1],
+                        pitch=0,yaw=0,roll=0)))
+            write_json(run/"private_evaluation/manifest.json",dict(protocol=protocol,views=gt_views))
+            write_json(run/"inputs/focal_manifest.json",dict(camera_order=names,
+                views=[dict(transform=dict(fx=1.,fy=1.)) for _ in names]))
+            for arm in ["baseline","adapted/post14_D02_registers"]:
+                np.savez(run/arm/"predictions.npz",extrinsic=extrinsics[None],
+                    intrinsic=np.tile(np.eye(3),(1,5,1,1)),depth=np.ones((1,5,2,2,1)))
+            captured=io.StringIO()
+            with patch.object(sys,"argv",["evaluate","--run",str(run)]), \
+                    patch.object(evaluation,"depth_gt",return_value=(
+                        np.ones((2,2)),np.ones((2,2),dtype=bool),"synthetic")), \
+                    contextlib.redirect_stdout(captured):
+                evaluation.main()
+                with self.assertRaises(FileExistsError): evaluation.main()
+            summary=json.loads(captured.getvalue())
+            self.assertAlmostEqual(summary["adapted"]["D02"]["center_error_m"],0.)
+            report=json.loads((run/"comparison/geometry_metrics.json").read_text())
+            self.assertEqual(report["optimization_status"],"ACCEPTED")
+            self.assertAlmostEqual(report["arms"]["baseline"]["views"][4]["depth_absrel"],0.)
+
     def test_degenerate_support_rejected(self):
         from residual_tto.evaluate import sim3
         points=np.array([[0.,0,0],[1.,0,0],[2.,0,0],[3.,0,0]])

@@ -1,6 +1,7 @@
 """Offline evaluator. Imported only after optimization has ended; GT never enters runner."""
 import argparse
 import itertools
+import json
 import math
 import os
 from pathlib import Path
