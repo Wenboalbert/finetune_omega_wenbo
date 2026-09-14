@@ -50,6 +50,9 @@ This is a training-repository linked worktree, not another Omega model source.
 - All GPU work requires PBS/qsub and task authorization; none on the Mac or login node.
 - Stage only reviewed task files. This repository is public; data, private manifests, weights, runs,
   credentials and unscreened audits must stay out of GitHub.
+- User decision: experiment results, aggregate metrics and run identifiers stay on QUT/Mac.
+  Public GitHub is for code and pre-registered protocols only. Result publication requires
+  a new explicit authorization; do not infer it from permission to implement or push code.
 - `local_archive/` contains private historical evidence, not active instructions or executable defaults.
 - Status/review/diagnosis requests do not authorize mutation or jobs. Do not force-push or silently merge legacy code.
 - Record exact commits/hashes and limits. Precheck PASS or lower focal loss does not establish pose/depth gains or GS readiness.
