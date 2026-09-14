@@ -64,8 +64,9 @@ Environment activation alone may select model `main`; always verify the explicit
 - Private registry/data/manifests/prepared data remain on QUT; they are outside these code branches and are not GitHub-backed.
   Public data protocol documentation lives in V001 `inputs/README.md`; actual runs snapshot their private manifests.
 - V001 plans RGB + known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
-  The user approved external activation residuals on 2026-09-14. Numerical preflight gates the single-step smoke.
-  See docs/IMPLEMENTATION_V001.md; inherited legacy PBS remains disabled.
+  The user approved external activation residuals on 2026-09-14. Group 1 was the single-step smoke.
+  Group 2 is the independent cumulative-budget ladder in docs/BUDGET_LADDER_V001.md.
+  Both require numerical preflight; inherited legacy PBS remains disabled.
 - Legacy `camera_only` trains the complete CameraHead, not LoRA, and its geometry/FOV supervision is not focal-only.
   Its existing runs/logs/manifests/archive and QUT-only 10-step config are preserved.
 - In V001, inherited legacy PBS scripts remain disabled. Do not submit them or treat inherited training modules as V001.

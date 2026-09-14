@@ -72,7 +72,13 @@ def depth_gt(path, transform, unit_scale):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument("--run",required=True);args=parser.parse_args()
     run=Path(args.run).resolve()
-    if read_json(run/"logs/smoke_completion.json")["status"]!="PASS": raise RuntimeError("optimizer not frozen")
+    if (run/"study_manifest.json").exists():
+        # This barrier runs BEFORE the first read of any geometry GT.
+        from .study import assert_study_frozen
+        assert_study_frozen(run)
+        if not (run/"logs/geometry_release.json").exists():
+            raise RuntimeError("study driver has not released offline evaluation")
+    elif read_json(run/"logs/smoke_completion.json")["status"]!="PASS": raise RuntimeError("optimizer not frozen")
     optimization=read_json(run/"adapted/post14_D02_registers/optimization.json")
     residual_path=run/"adapted/post14_D02_registers/residual.pt"
     if sha256(residual_path)!=optimization["residual_sha256"]: raise ValueError("residual changed")

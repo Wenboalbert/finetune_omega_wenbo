@@ -13,7 +13,10 @@ register-parameter tuning, CameraHead tuning, nor LoRA.
 - Existing environment: `env_finetune`; no package/environment changes.
 - First packet: frame 40, ordered CCTV_01..04 + Drone_02.
 - First intervention: post_frame(14), Drone_02 registers, 16,384 FP32 activation variables.
-- Maximum accepted GN updates: one; finite retries and STOP are valid outcomes.
+- Group 1: at most one accepted GN update; its runs/configuration are preserved.
+- Group 2 is now user-authorized: independent 0.3/1/2/4 percent cumulative budgets,
+  explicit two-constraint GN and a four-endpoint GT barrier. Read
+  [frozen group-2 protocol](docs/BUDGET_LADDER_V001.md); implementation is not a GPU result.
 - HFOV degrees and UE Z-depth cm are user-confirmed conventions, not exporter-source verification.
 
 Read [AGENTS.md](AGENTS.md), [QUT_LAYOUT.md](QUT_LAYOUT.md), and

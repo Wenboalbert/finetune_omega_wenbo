@@ -14,8 +14,12 @@ This is a training-repository linked worktree, not another Omega model source.
 ## Method and data boundary
 
 - Approved 2026-09-14: external activation residuals, frozen Omega, focal-only damped GN.
-- First run is frame 40, post_frame(14), Drone_02 registers only, at most one accepted step.
-- Numerical preflight must PASS before smoke; GPU work uses the new scripts/v001_smoke.pbs only.
+- Group 1 remains the historical one-step frame-40 smoke (scripts/v001_smoke.pbs).
+- User authorized group 2 on 2026-09-14: same post_frame(14) D02 residual, independent
+  0.3/1/2/4 percent cumulative budgets, explicit two-constraint GN, <=40 accepted steps/J.
+- Read docs/BUDGET_LADDER_V001.md for frozen group-2 radius, acceptance and stop rules.
+- Group 2 uses scripts/v001_budget_ladder.pbs; preflight must PASS before optimization.
+  All four endpoints must freeze before any group-2 geometry GT evaluation.
 - V001 is per-scene RGB input with known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
 - Native camera/register parameters remain frozen; no LoRA, no new tokens, no layer scan.
 - See docs/IMPLEMENTATION_V001.md for current gates, numerical-policy limits and run entrypoints.

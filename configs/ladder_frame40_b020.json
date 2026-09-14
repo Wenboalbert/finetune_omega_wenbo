@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "frame": 40,
+  "camera_order": [
+    "CCTV_01",
+    "CCTV_02",
+    "CCTV_03",
+    "CCTV_04",
+    "Drone_02"
+  ],
+  "supervised_views": [
+    "Drone_02"
+  ],
+  "specs": [
+    {
+      "name": "post14_D02_registers",
+      "site": "post_frame",
+      "layer": 14,
+      "editable_views": [
+        "Drone_02"
+      ],
+      "token_scope": "registers"
+    }
+  ],
+  "preprocessing": {
+    "mode": "balanced",
+    "resolution": 512,
+    "patch": 16
+  },
+  "B": 1,
+  "S": 5,
+  "seed": 14,
+  "precision": "fp32_tf32_off",
+  "jacobian_mode": "per_view",
+  "update_schedule": "synchronous",
+  "acceptance_rule": "total_supervised_focal_loss",
+  "numerics": {
+    "fd_epsilons": [
+      0.3,
+      0.1,
+      0.03,
+      0.01,
+      0.003,
+      0.001
+    ],
+    "fd_relative_tolerance": 0.03,
+    "fd_cosine_min": 0.995,
+    "fd_directions": 2
+  },
+  "evaluation": {
+    "support_views": [
+      "CCTV_01",
+      "CCTV_02",
+      "CCTV_03",
+      "CCTV_04"
+    ],
+    "heldout_view": "Drone_02",
+    "depth_definition": "z_depth",
+    "depth_source_unit": "cm",
+    "depth_to_m": 0.01,
+    "pose_position_to_m": 0.01,
+    "depth_scale": "same_per_arm_CCTV_support_Sim3_scale",
+    "support_sigma2_over_sigma1_min": 0.001,
+    "depth_validity": "finite_positive_GT; source/padding mask fixed; invalid prediction counted"
+  },
+  "semantics_source": "HFOV degrees and Z-depth cm confirmed by user 2026-09-14; not exporter-source verified",
+  "scope": "frame40 development; four independent zero starts; all endpoints frozen before geometry",
+  "experiment_group": "v001_group2_budget_ladder",
+  "optimizer": {
+    "loss": "sum_squared_log_focal_residual",
+    "initial_step_relative": 0.0005,
+    "maximum_step_relative": 0.0025,
+    "minimum_step_relative": 0.00001,
+    "max_accepted_steps": 40,
+    "max_jacobians": 40,
+    "max_candidates_per_jacobian": 8,
+    "max_candidate_forwards": 160,
+    "target_mean_focal_relative_error": 0.15,
+    "accept_rho_min": 0.1,
+    "shrink_rho_below": 0.25,
+    "grow_rho_interval": [
+      0.75,
+      1.25
+    ],
+    "grow_required_consecutive": 2,
+    "grow_min_radius_utilization": 0.8,
+    "shrink_factor": 0.5,
+    "grow_factor": 2,
+    "tau_absolute": 1e-7,
+    "tau_loss_fraction": 0.00001,
+    "tau_repeat_multiplier": 10,
+    "repeat_forwards": 3,
+    "cast_retreat_powers": [
+      23,
+      22,
+      21,
+      20,
+      19,
+      18,
+      17
+    ],
+    "nonfinite_or_infeasible_candidate": "no acceptance; shrink once; preserve current state",
+    "geometry_gt_access": "none",
+    "depth_diagnostic_outputs": "baseline and frozen endpoint only",
+    "jacobian_counting": "initial preflight J is main-loop J1; FD and repeat forwards counted separately"
+  },
+  "cumulative_budget_relative": 0.02
+}

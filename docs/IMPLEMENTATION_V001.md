@@ -1,5 +1,11 @@
 # V001 approved protocol and operational gates
 
+This document preserves the GROUP-1 one-step smoke protocol below.
+The later user-authorized GROUP-2 protocol is [BUDGET_LADDER_V001.md](BUDGET_LADDER_V001.md).
+Group 2 keeps the same activation site/data/GT isolation, but supersedes the
+one-step/coarse-damping/absolute-cap rules only for its own new runs.
+Never apply new settings retroactively to old runs.
+
 ## Frozen task
 
 Frame 40, canonical order CCTV_01, CCTV_02, CCTV_03, CCTV_04, Drone_02.
