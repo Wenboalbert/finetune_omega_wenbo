@@ -40,6 +40,16 @@ checked before smoke. A deterministic row-space direction and a random direction
 are checked across the declared epsilon grid. Each must have a passing epsilon.
 Raw errors are saved; tolerances are development numerical tolerances, not accuracy claims.
 
+Epsilon is an L2 radius along a unit-length residual direction, not a per-element
+amplitude. For 16,384 active elements epsilon=0.3 means perturbation RMS 0.00234375.
+These symmetric diagnostic probes are never accepted optimizer updates and do not
+change the separate cumulative-update caps. After the first preflight STOP on
+2026-09-14, the grid added 0.03, 0.1 and 0.3 to the original 0.001--0.01 values:
+the row direction passed but the random Jv norm was about 1.18e-4, leaving output
+differences near FP32 resolution at the old radii. No optimizer/evaluator had run.
+The relative-error (0.03) and cosine (0.995) gates, direction seed, damping policy
+and update budgets are unchanged. Retain the failed run and create a new run.
+
 The initial cumulative safety caps are absolute RMS 0.01 AND relative RMS 0.001,
 per site and editable view, referenced to frozen zero-residual activations.
 These conservative DEVELOPMENT caps are not optimal hyperparameters.
