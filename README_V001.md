@@ -1,5 +1,8 @@
 # V001: focal-only register activation residual
 
+2026-09-14 status: the first complete one-step GPU smoke passed. See
+[execution record and limits](docs/SMOKE_STATUS_20260914.md); this is not an accuracy claim.
+
 Approved scope (2026-09-14): freeze all Omega pretrained parameters, optimize only
 external additive activation residuals using known focal. This is neither native
 register-parameter tuning, CameraHead tuning, nor LoRA.
