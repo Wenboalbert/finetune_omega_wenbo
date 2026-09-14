@@ -1,6 +1,6 @@
 # QUT repository / branch layout
 
-Current handoff: 2026-09-10. Read this with this checkout's `AGENTS.md` before SSH operations.
+Current handoff: 2026-09-14. Experiment implementation details: docs/IMPLEMENTATION_V001.md. Read this with this checkout's `AGENTS.md` before SSH operations.
 Remote instructions must be read explicitly; local discovery does not load SSH-host files.
 
 ## Directory and GitHub mapping
@@ -13,7 +13,7 @@ Repository-named parent folders are grouping directories, not Git checkouts. Run
 | `vggt-omega_wenbo/main` | `Wenboalbert/vggt-omega_wenbo` | `main`: primary checkout, shared Git administration, original weights |
 | `vggt-omega_wenbo/offer_omega_original_model` | same model repository | same-name branch: original-model provider worktree |
 | `finetune_omega_wenbo/ue-heterocam-finetune` | `Wenboalbert/finetune_omega_wenbo` | same-name branch: legacy CameraHead primary checkout |
-| `finetune_omega_wenbo/v001-focal-only-register-token` | same training repository | same-name branch: V001 per-scene register-token scaffold |
+| `finetune_omega_wenbo/v001-focal-only-register-token` | same training repository | same-name branch: V001 per-scene activation-residual experiment |
 | `datasets/` | outside Git checkouts | private shared data registry, manifests and prepared-data entry |
 
 V001 is the renamed `scene-adaptation` worktree/branch, preserving ancestry at
@@ -64,7 +64,8 @@ Environment activation alone may select model `main`; always verify the explicit
 - Private registry/data/manifests/prepared data remain on QUT; they are outside these code branches and are not GitHub-backed.
   Public data protocol documentation lives in V001 `inputs/README.md`; actual runs snapshot their private manifests.
 - V001 plans RGB + known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
-  Native register updates vs residuals/deep prompts is not yet decided; no training, loss, optimizer or PBS is implemented.
+  The user approved external activation residuals on 2026-09-14. Numerical preflight gates the single-step smoke.
+  See docs/IMPLEMENTATION_V001.md; inherited legacy PBS remains disabled.
 - Legacy `camera_only` trains the complete CameraHead, not LoRA, and its geometry/FOV supervision is not focal-only.
   Its existing runs/logs/manifests/archive and QUT-only 10-step config are preserved.
 - In V001, inherited legacy PBS scripts remain disabled. Do not submit them or treat inherited training modules as V001.

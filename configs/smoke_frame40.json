@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "frame": 40,
+  "camera_order": [
+    "CCTV_01",
+    "CCTV_02",
+    "CCTV_03",
+    "CCTV_04",
+    "Drone_02"
+  ],
+  "supervised_views": [
+    "Drone_02"
+  ],
+  "specs": [
+    {
+      "name": "post14_D02_registers",
+      "site": "post_frame",
+      "layer": 14,
+      "editable_views": [
+        "Drone_02"
+      ],
+      "token_scope": "registers"
+    }
+  ],
+  "preprocessing": {
+    "mode": "balanced",
+    "resolution": 512,
+    "patch": 16
+  },
+  "B": 1,
+  "S": 5,
+  "seed": 14,
+  "precision": "fp32_tf32_off",
+  "jacobian_mode": "per_view",
+  "update_schedule": "synchronous",
+  "acceptance_rule": "total_supervised_focal_loss",
+  "max_accepted_steps": 1,
+  "max_attempts": 4,
+  "damping_retry_factor": 10,
+  "numerics": {
+    "fd_epsilons": [
+      0.01,
+      0.003,
+      0.001
+    ],
+    "fd_relative_tolerance": 0.03,
+    "fd_cosine_min": 0.995,
+    "fd_directions": 2,
+    "damping_relative_grid": [
+      0.001,
+      0.01,
+      0.1,
+      1,
+      10,
+      100,
+      1000,
+      10000,
+      100000,
+      1000000
+    ],
+    "budget_absolute_rms_cap": 0.01,
+    "budget_relative_rms_cap": 0.001,
+    "minimum_loss_improvement": 1e-9
+  },
+  "evaluation": {
+    "support_views": [
+      "CCTV_01",
+      "CCTV_02",
+      "CCTV_03",
+      "CCTV_04"
+    ],
+    "heldout_view": "Drone_02",
+    "depth_definition": "z_depth",
+    "depth_source_unit": "cm",
+    "depth_to_m": 0.01,
+    "pose_position_to_m": 0.01,
+    "depth_scale": "same_per_arm_CCTV_support_Sim3_scale",
+    "support_sigma2_over_sigma1_min": 0.001,
+    "depth_validity": "finite_positive_GT; source/padding mask fixed; invalid prediction counted"
+  },
+  "semantics_source": "HFOV degrees and Z-depth cm confirmed by user 2026-09-14; not exporter-source verified",
+  "scope": "single-packet numerical smoke, no geometry-based selection, no GS-readiness claim"
+}

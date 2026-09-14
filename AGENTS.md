@@ -13,10 +13,12 @@ This is a training-repository linked worktree, not another Omega model source.
 
 ## Method and data boundary
 
-- Infrastructure only: register adaptation, loss, optimizer and training PBS are NOT implemented.
+- Approved 2026-09-14: external activation residuals, frozen Omega, focal-only damped GN.
+- First run is frame 40, post_frame(14), Drone_02 registers only, at most one accepted step.
+- Numerical preflight must PASS before smoke; GPU work uses the new scripts/v001_smoke.pbs only.
 - V001 is per-scene RGB input with known focal as the only adaptation GT. Pose/depth GT is offline evaluation only.
-- Register-token parameterization is undecided: native register updates, residuals and deep prompts are not interchangeable.
-  Do not silently choose one, add LoRA, or claim a trainable-parameter count before an approved implementation.
+- Native camera/register parameters remain frozen; no LoRA, no new tokens, no layer scan.
+- See docs/IMPLEMENTATION_V001.md for current gates, numerical-policy limits and run entrypoints.
 - New method code belongs directly in `src/`; method configs, scripts and input schemas belong in
   `configs/`, `scripts/` and `inputs/`. Do not add another `experiments/<version>/` layer.
 - Other methods get parallel same-name branch/worktree directories, created only when requested.
