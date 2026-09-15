@@ -62,3 +62,13 @@ This is a training-repository linked worktree, not another Omega model source.
 - `local_archive/` contains private historical evidence, not active instructions or executable defaults.
 - Status/review/diagnosis requests do not authorize mutation or jobs. Do not force-push or silently merge legacy code.
 - Record exact commits/hashes and limits. Precheck PASS or lower focal loss does not establish pose/depth gains or GS readiness.
+
+## Group 4 authorization (2026-09-15)
+
+User approved docs/EXTENDED_V001.md: independent 4% at 80 steps/Jacobians,
+320 candidate forwards; conditional independent 5% only if frozen D02
+Emax>0.1%. Target remains 0; all other numerics/backends frozen. Prefix is
+DIAGNOSTIC for this group only. All executed endpoints and focal-only branch
+must close before offline geometry. Keep group 3 immutable and unevaluated.
+Use scripts/prepare_extended.py and scripts/v001_extended.pbs; do not change
+historical drivers. Results and run identifiers remain private QUT/Mac.

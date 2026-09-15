@@ -110,3 +110,14 @@ Authorized single-variable experiment: remove the 15% early-stop by setting
 its threshold to 0.0. Keep all other optimization settings and numerical core
 unchanged. See [frozen protocol](ZERO_TARGET_V001.md) and actual private run
 artifacts for execution status; source implementation is not a GPU result.
+
+## Group 4: extended compute and conditional budget (2026-09-15)
+
+Read [EXTENDED_V001.md](EXTENDED_V001.md) before execution.
+Same V001 branch/worktree/provider/environment; new runs only. Independent
+4% with 80 accepted steps / 80 Jacobians / 320 candidate forwards, followed
+only if necessary by independent 5%. Near-zero D02 Emax<=0.1% is a post-freeze
+branch test, not an optimizer stop. Prefix is diagnostic, not a geometry gate;
+validity/integrity and all-executed-endpoints barriers remain hard gates.
+Group 3 is neither resumed nor evaluated. New preparation/PBS entrypoints:
+scripts/prepare_extended.py and scripts/v001_extended.pbs. No public results.

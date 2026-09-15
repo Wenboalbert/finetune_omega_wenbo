@@ -47,3 +47,14 @@ Code existing or CPU tests passing is not a GPU result. Consult the actual run's
 numerical_preflight.json, logs/*_completion.json, optimization.json and
 comparison/geometry_metrics.json. A failed gate stops execution. A one-packet smoke
 is a numerical/propagation diagnostic, not held-out generalization or GS readiness.
+
+## Group 4: extended compute and conditional budget (2026-09-15)
+
+Read [docs/EXTENDED_V001.md](docs/EXTENDED_V001.md) before execution.
+Same V001 branch/worktree/provider/environment; new runs only. Independent
+4% with 80 accepted steps / 80 Jacobians / 320 candidate forwards, followed
+only if necessary by independent 5%. Near-zero D02 Emax<=0.1% is a post-freeze
+branch test, not an optimizer stop. Prefix is diagnostic, not a geometry gate;
+validity/integrity and all-executed-endpoints barriers remain hard gates.
+Group 3 is neither resumed nor evaluated. New preparation/PBS entrypoints:
+scripts/prepare_extended.py and scripts/v001_extended.pbs. No public results.
