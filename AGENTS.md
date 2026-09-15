@@ -72,3 +72,15 @@ DIAGNOSTIC for this group only. All executed endpoints and focal-only branch
 must close before offline geometry. Keep group 3 immutable and unevaluated.
 Use scripts/prepare_extended.py and scripts/v001_extended.pbs; do not change
 historical drivers. Results and run identifiers remain private QUT/Mac.
+
+## Group 5: simplified budget expansion (2026-09-15)
+
+User authorized [docs/GROUP5_V001.md](docs/GROUP5_V001.md): independent
+7 -> 8 -> 9 percent, stop subsequent arms at frozen D02 Emax<=0.1%.
+Valid non-near-zero COMPUTE_LIMIT/NUMERICAL_FLOOR and other normal stops
+continue to the next budget; hard failures stop with no geometry release.
+All group-4 numerical settings and 80/80/320/8 limits remain unchanged.
+No quarter-point refinement, minimum-budget search or warm start.
+Use scripts/prepare_group5.py and scripts/v001_group5.pbs. Three fixed
+member manifests; all executed endpoints/skip decisions close before GT.
+Preserve every prior run and group entrypoint. Public code/protocol only.

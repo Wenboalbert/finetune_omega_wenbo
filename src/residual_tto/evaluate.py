@@ -78,7 +78,7 @@ def main():
     run=Path(args.run).resolve()
     if (run/"study_manifest.json").exists():
         # This barrier runs BEFORE the first read of any geometry GT.
-        from .extended import evaluation_barrier
+        from .group5 import evaluation_barrier
         evaluation_barrier(run)
         if not (run/"logs/geometry_release.json").exists():
             raise RuntimeError("study driver has not released offline evaluation")
@@ -96,6 +96,9 @@ def main():
         if study.get("experiment_group")=="v001_group4_extended":
             if args.invalid_source_depth!=[65504.]:
                 raise ValueError("group-4 confirmed invalid-depth policy is required")
+        if study.get("experiment_group")=="v001_group5_budget_expansion":
+            if args.invalid_source_depth!=[65504.]:
+                raise ValueError("group-5 confirmed invalid-depth policy is required")
     gt_manifest=read_json(run/"private_evaluation/manifest.json")
     focal=read_json(run/"inputs/focal_manifest.json")
     protocol=dict(gt_manifest["protocol"]);names=focal["camera_order"]

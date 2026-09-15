@@ -33,7 +33,7 @@ def main():
     manifest=read_json(run/"inputs/focal_manifest.json");study=read_json(run/"study_manifest.json")
     allowed={"schema_version","camera_order","frame","packet_file","packet_sha256","views","focal_xy","semantics_source"}
     if set(manifest)!=allowed: raise ValueError("unexpected focal-only fields")
-    if config["experiment_group"] not in ("v001_group2_budget_ladder","v001_group3_zero_target","v001_group4_extended") or config["frame"]!=40:
+    if config["experiment_group"] not in ("v001_group2_budget_ladder","v001_group3_zero_target","v001_group4_extended","v001_group5_budget_expansion") or config["frame"]!=40:
         raise ValueError("wrong experiment group")
     if config["experiment_group"]=="v001_group3_zero_target":
         from .zero_target import validate_config,reference_config,verify_core
@@ -43,6 +43,10 @@ def main():
         from .extended import validate_config,reference_config,verify_frozen
         validate_config(config,reference_config(root))
         if verify_frozen(root)!=study["frozen_core_hashes"]: raise ValueError("group-4 frozen code mismatch")
+    if config["experiment_group"]=="v001_group5_budget_expansion":
+        from .group5 import validate_config,reference_config,verify_frozen
+        validate_config(config,reference_config(root))
+        if verify_frozen(root)!=study["frozen_core_hashes"]: raise ValueError("group-5 frozen code mismatch")
     if config["supervised_views"]!=["Drone_02"] or config["camera_order"]!=[
             "CCTV_01","CCTV_02","CCTV_03","CCTV_04","Drone_02"]:
         raise ValueError("frozen focal supervision/order changed")
